@@ -1,18 +1,17 @@
-# c-compiler
-
-## BNF
+C subset specification
+======================
 
 <statement> ::= <assign>
 		| <declaration>
 		| <function>
-| <loop>
+		| <loop>
 		| <loop-flow-control>
 
 <factor> ::= <identifier> | <integer> | <float>
 <identifier> ::= [A-Za-z_][0-9A-Za-z_]*
 <integer> ::= [+-]?[0-9]+
 <float> ::= [+-]?[0-9]+.[0-9]+
-<type-specifier> ::= 	  int | float | char | void
+<type-specifier> ::=	int | float | char | void
 
 <loop> ::= <for-loop> | <while-loop>
 <for-loop> ::= for (<expression>?; <expression>?; <expression>?) { <statement> }
