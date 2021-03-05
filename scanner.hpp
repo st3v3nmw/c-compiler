@@ -8,36 +8,16 @@
 #include <string>
 #include <algorithm>
 #include <map>
+#include "defs.hpp"
 
 using namespace std;
 
-enum {
-    T_EOF,
-    T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, // keywords
-    T_PLUS, T_MINUS, T_STAR, T_SLASH, T_UNARY_PLUS, T_UNARY_MINUS, T_BITW_AND, T_BITW_OR, // arithmetic operators
-    T_NEGATION, T_AND, T_OR,
-    T_EQ, T_NEQ, T_LT, T_GT, T_LEQ, T_GEQ, // relational operators
-    T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, // assignment operators
-    T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, // separators
-    T_INTLIT, T_FLOAT_LIT, T_STRLIT, T_BOOLIT, T_IDENTIFIER, // literals & identifier
-    T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
-};
-
-string tokenString[] = {
-    "EOF",
-    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
-    "+", "-", "*", "/", "++", "--", "&", "|",
-    "!", "&&", "||",
-    "==", "!=", "<", ">", "<=", ">=",
-    "=", "+=", "-=", "*=", "/=",
-    "{", "}", ",", "(", ")", ";",
-    "integer literal", "floating-point literal", "string literal", "boolean literal", "identifier",
-    "comment"
-};
-
+// global variables
 map<string, int> keywords;
 map<string, int> separators;
 map<string, int> operators;
+string line;
+int line_number, cur_pos, token_start_pos;
 
 class TokenNode {
     public:
@@ -51,14 +31,14 @@ class TokenNode {
 
         void print() {
             if (this->token >= T_INTLIT)
-                cout << tokenString[this->token] << " -> " << this->value << "\n";
+                cout << tokenString[this->token] << " -> " << this->value << endl;
             else {
                 if (this->token >= T_INT && this->token <= T_PRINT)
-                    cout << "keyword -> " << tokenString[this->token] << "\n";
+                    cout << "keyword -> " << tokenString[this->token] << endl;
                 else if (this->token >= T_PLUS && this->token <= T_SLASH_ASSIGN)
-                    cout << "operator -> " << tokenString[this->token] << "\n";
+                    cout << "operator -> " << tokenString[this->token] << endl;
                 else if (this->token >= T_LCURLY && this->token <= T_SEMICOLON)
-                    cout << "separator -> " << tokenString[this->token] << "\n";
+                    cout << "separator -> " << tokenString[this->token] << endl;
             }
         }
 };
@@ -124,7 +104,7 @@ bool isFloat(const string &str) {
     return isInteger(str.substr(0, found)) && isInteger(str.substr(found+1));
 }
 
-int getTokenType(const string &token, int line_number) {
+int getTokenType(const string &token) {
     if (isComment(token))
         return T_COMMENT;
     else if (isInteger(token))
@@ -144,7 +124,13 @@ int getTokenType(const string &token, int line_number) {
     else if (isFloat(token))
         return T_FLOAT_LIT;
     else {
-        cerr << "\nSyntax error\nUnexpected token " << token << " on line " << line_number << "\n";
+        cerr << endl << line;
+        if (line[line.size() - 1] != '\n')
+            cout << endl;
+        if (token_start_pos - 1 > 0)
+            cerr << string(token_start_pos - 1, ' ');
+        cerr << string(cur_pos - token_start_pos - 1, '^') << endl;
+        cerr << "Unexpected token " << token << " on line " << line_number << endl;
         exit(2);
     }
 }
@@ -161,7 +147,6 @@ vector<TokenNode> scanner(const string &file_name) {
         separators.insert({tokenString[t], t});
 
     char ch;
-    int line_number = 0;
     vector<TokenNode> tokens = {};
     // comment
     bool singlelinecomment = false;
@@ -169,20 +154,24 @@ vector<TokenNode> scanner(const string &file_name) {
     string comm;
     // file handling
     ifstream infile;
-    infile.open(file_name, ios::in);   // Attempt to open the file
-    // Check for file status
+    infile.open(file_name, ios::in);   // attempt to open the file
+    // check for file status
     if(infile.fail()) {
-        cerr << "File not found" << endl;
+        perror("file open failed");
         exit(EXIT_FAILURE);
     }
 
     while (infile >> noskipws >> ch) {
-
-        if (singlelinecomment){
-            if(ch == '\n'){
-                line_number++;
-                tokens.push_back(TokenNode(getTokenType(comm, line_number), comm));
+        line += ch;
+        cur_pos += 1;
+        if (singlelinecomment) {
+            if(ch == '\n') {
+                tokens.push_back(TokenNode(getTokenType(comm), comm));
                 singlelinecomment = false;
+                line_number++;
+                token_start_pos = 1;
+                cur_pos = 1;
+                line = "";
             }
             if (singlelinecomment)
                 comm += ch;
@@ -203,48 +192,56 @@ vector<TokenNode> scanner(const string &file_name) {
             }
         }
 
-        if(isWhitespace(string(1, ch))){
-            if (string(1, ch) == "\n")
-                line_number++;
-            if(!buffer.empty()){
-                if(buffer[0] == '"'){
+        if (isWhitespace(string(1, ch))) {
+            if (!buffer.empty()) {
+                if( buffer[0] == '"' ){
                     buffer += ch;
-                }
-                else{
-                    tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
+                } else{
+                    tokens.push_back(TokenNode(getTokenType(buffer), buffer));
+                    token_start_pos = cur_pos;
                     buffer = "";
                 }
 
             }
+
+            if (string(1, ch) == "\n") {
+                line_number++;
+                token_start_pos = 1;
+                cur_pos = 1;
+                line = "";            }
             continue;
         }
 
-        if (isOperator(string(1, ch)) && !isOperator(buffer)){
+        if (isOperator(string(1, ch)) && !isOperator(buffer)) {
             if (!buffer.empty()){
-                tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
+                tokens.push_back(TokenNode(getTokenType(buffer), buffer));
+                token_start_pos = cur_pos;
                 buffer = "";
             }
         }
 
-        if (!isOperator(string(1, ch)) && isOperator(buffer)){
-            tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
+        if (!isOperator(string(1, ch)) && isOperator(buffer)) {
+            tokens.push_back(TokenNode(getTokenType(buffer), buffer));
+            token_start_pos = cur_pos;
             buffer = "";
         }
 
         if (isSeparator(string(1, ch))) {
             if (!buffer.empty()) {
-                tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
+                tokens.push_back(TokenNode(getTokenType(buffer), buffer));
+                token_start_pos = cur_pos;
                 buffer = "";
             }
             if (isSeparator(string(1, ch))) {
-                tokens.push_back(TokenNode(getTokenType(string(1, ch), line_number), buffer));
+                tokens.push_back(TokenNode(getTokenType(string(1, ch)), buffer));
+                token_start_pos = cur_pos;
                 continue;
             }
         }
         buffer += ch;
     }
 
-    // Close the file
+    // close the file
     infile.close();
 
     return tokens;

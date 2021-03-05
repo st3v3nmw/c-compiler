@@ -7,7 +7,6 @@ int main() {
     // declarations
     float p;
     int r;
-
     // initializations
     bool q = false;
     float e = 2.71828;

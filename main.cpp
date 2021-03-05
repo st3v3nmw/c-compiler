@@ -8,5 +8,6 @@ int main(int argc, char** argv) {
     vector<TokenNode> tokens = scanner(file);
     for (auto t : tokens)
         t.print();
+
     return 0;
 }
