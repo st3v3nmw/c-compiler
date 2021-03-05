@@ -48,7 +48,6 @@ bool isIdentifier(const string &str){
 
 bool isKeyword(const string &str){
     const unordered_set<string> preserved{"int", "float", "void", "return"};
-//    const vector<string> preserved{"int", "float", "printf", "void", "return"};
     for (const auto &keyword : preserved){
         if(keyword == str){
             return true;
@@ -58,7 +57,6 @@ bool isKeyword(const string &str){
 }
 
 bool isStatement(const string &str){
-//    const vector<string> statement{"for", "while", "if", "else"};
     const unordered_set<string> statement{"for", "while", "if", "else"};
     for (const auto &state : statement){
         if (state == str){
@@ -69,7 +67,6 @@ bool isStatement(const string &str){
 }
 
 bool isOperator(const string &str){
-//    const vector<string> operators{"<", ">", "<=", ">=", "*", "+", "-", "/", "=", "-=", "*=", "+=", "/=", "++", "--", "=="};
     const unordered_set<string> operators{"<", ">", "<=", ">=", "*", "+", "-", "/", "=", "-=", "+=", "++", "=="};
     for (const auto &opt : operators){
         if (opt == str){
@@ -80,7 +77,6 @@ bool isOperator(const string &str){
 }
 
 bool isSeparator(const string &str){
-//    const vector<string> separators{"{", "}", ",", "(", ")", ";"};
     const unordered_set<string> separators{"{", "}", ",", "(", ")", ";"};
     for(const auto &sep : separators){
         if (sep == str){
