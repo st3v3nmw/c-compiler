@@ -2,12 +2,8 @@
 #include <cstdlib>
 #include <string>
 #include <algorithm>
-<<<<<<< HEAD
-#include <bits/stdc++.h>
-=======
 #include <map>
 
->>>>>>> 0af16088329336b29f555393805031620f7c7cd9
 
 using namespace std;
 
@@ -97,46 +93,6 @@ bool isIdentifier(const string &str){
     return true;
 }
 
-<<<<<<< HEAD
-bool isKeyword(const string &str){
-    const unordered_set<string> preserved{"int", "float", "void", "return"};
-    for (const auto &keyword : preserved){
-        if(keyword == str){
-            return true;
-        }
-    }
-    return false;
-}
-
-bool isStatement(const string &str){
-    const unordered_set<string> statement{"for", "while", "if", "else"};
-    for (const auto &state : statement){
-        if (state == str){
-            return true;
-        }
-    }
-     return false;
-}
-
-bool isOperator(const string &str){
-    const unordered_set<string> operators{"<", ">", "<=", ">=", "*", "+", "-", "/", "=", "-=", "+=", "++", "=="};
-    for (const auto &opt : operators){
-        if (opt == str){
-            return true;
-        }
-    }
-    return false;
-}
-
-bool isSeparator(const string &str){
-    const unordered_set<string> separators{"{", "}", ",", "(", ")", ";"};
-    for(const auto &sep : separators){
-        if (sep == str){
-            return true;
-        }
-    }
-    return false;
-=======
 int isKeyword(const string &str){
     if (keywords.find(str) == keywords.end()) // str not found
         return 0;
@@ -160,7 +116,6 @@ bool isFloat(const string &str) {
     if (found == string::npos)
         return false;
     return isDigit(str.substr(0, found)) && isDigit(str.substr(found+1));
->>>>>>> 0af16088329336b29f555393805031620f7c7cd9
 }
 
 int getTokenType(const string &token, int line_number) {
