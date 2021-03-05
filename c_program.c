@@ -1,10 +1,9 @@
-void handle_print(int x, int y, int i){// handling functions
-    x = x + i * i;// arithmetic expression
-    y = y * i;        
-    if(x > y){// relational expression
-         printf("X is maximum");// Token String
-    }else
-    {
+void handle_print(int x, int y, int i) { // handling functions
+    x = x + i * i; // arithmetic expression
+    y = y * i;
+    if (x > y){ // relational expression
+         printf("X is maximum"); // Token String
+    } else {
         printf("Y is maximum");
     }
 }

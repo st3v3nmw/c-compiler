@@ -1,10 +1,63 @@
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
+#include <vector>
 #include <string>
 #include <algorithm>
-#include <bits/stdc++.h>
+#include <map>
+
 
 using namespace std;
+
+enum {
+    T_EOF,
+    T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, // keywords
+    T_PLUS, T_MINUS, T_STAR, T_SLASH, T_UNARY_ADD, T_UNARY_SUB, // arithmetic operators
+    T_EQ, T_NEQ, T_LT, T_GT, T_LEQ, T_GEQ, // relational operators
+    T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, // assignment operators
+    T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, // separators
+    T_INTLIT, T_FLOAT_LIT, T_STRLIT, T_BOOLIT, T_IDENTIFIER, // literals & identifier
+    T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
+};
+
+string tokenString[] = {
+    "EOF",
+    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
+    "+", "-", "*", "/", "++", "--",
+    "==", "!=", "<", ">", "<=", ">=",
+    "=", "+=", "-=", "*=", "/=",
+    "{", "}", ",", "(", ")", ";",
+    "integer literal", "floating-point literal", "string literal", "boolean literal", "identifier",
+    "comment"
+};
+
+map<string, int> keywords;
+map<string, int> separators;
+map<string, int> operators;
+
+class TokenNode {
+    public:
+        int token;
+        string value;
+
+        TokenNode(int token, string value) {
+            this->token = token;
+            this->value = value;
+        }
+
+        void print() {
+            if (this->token >= T_INTLIT)
+                cout << tokenString[this->token] << " -> " << this->value << "\n";
+            else {
+                if (this->token >= T_INT && this->token <= T_PRINT)
+                    cout << "keyword -> " << tokenString[this->token] << "\n";
+                else if (this->token >= T_PLUS && this->token <= T_PLUS_ASSIGN)
+                    cout << "operator -> " << tokenString[this->token] << "\n";
+                else if (this->token >= T_LCURLY && this->token <= T_SEMICOLON)
+                    cout << "separator -> " << tokenString[this->token] << "\n";
+            }
+        }
+};
 
 
 bool isString(const string &str){
@@ -23,11 +76,7 @@ bool isComment(const string &str){
     return str[0] == '/' && str[1] == '/';
 }
 
-bool isLiteral(const string &str){
-    return isDigit(str) || isBoolean(str);
-}
-
-bool isIllegal(const string &str){
+bool isWhitespace(const string &str){
     return str == " " || str == "\n";
 }
 
@@ -46,90 +95,89 @@ bool isIdentifier(const string &str){
     return true;
 }
 
-bool isKeyword(const string &str){
-    const unordered_set<string> preserved{"int", "float", "void", "return"};
-    for (const auto &keyword : preserved){
-        if(keyword == str){
-            return true;
-        }
-    }
-    return false;
+int isKeyword(const string &str){
+    if (keywords.find(str) == keywords.end()) // str not found
+        return 0;
+    return keywords[str]; // return token type
 }
 
-bool isStatement(const string &str){
-    const unordered_set<string> statement{"for", "while", "if", "else"};
-    for (const auto &state : statement){
-        if (state == str){
-            return true;
-        }
-    }
-     return false;
+int isOperator(const string &str){
+    if (operators.find(str) == operators.end()) // str not found
+        return 0;
+    return operators[str]; // return token type
 }
 
-bool isOperator(const string &str){
-    const unordered_set<string> operators{"<", ">", "<=", ">=", "*", "+", "-", "/", "=", "-=", "+=", "++", "=="};
-    for (const auto &opt : operators){
-        if (opt == str){
-            return true;
-        }
-    }
-    return false;
+int isSeparator(const string &str){
+    if (separators.find(str) == separators.end()) // str not found
+        return 0;
+    return separators[str]; // return token type
 }
 
-bool isSeparator(const string &str){
-    const unordered_set<string> separators{"{", "}", ",", "(", ")", ";"};
-    for(const auto &sep : separators){
-        if (sep == str){
-            return true;
-        }
-    }
-    return false;
+bool isFloat(const string &str) {
+    size_t found = str.find_first_of(".");
+    if (found == string::npos)
+        return false;
+    return isDigit(str.substr(0, found)) && isDigit(str.substr(found+1));
 }
 
-void printToken(const string &token){
-    if(isComment(token)){
-        cout<<"(comment -> " <<token<<" )\n";
-    } else if (isLiteral(token)){
-        cout<<"(literal -> " <<token<< " )\n";
-    } else if (isSeparator(token)){
-        cout<<"(separator -> " <<token<< " )\n";
-    } else if (isKeyword(token)){
-        cout<<"(keyword -> " <<token<< " )\n";
-    }  else if (isStatement(token)){
-        cout<<"(keyword-statement -> " <<token<< " )\n";
-    } else if (isIdentifier(token)){
-        cout<<"(identifier -> " <<token<< " )\n";
-    } else if (isOperator(token)){
-        cout<<"(operator -> " <<token<< " )\n";
-    } else if (isString(token)){
-        cout<<"(string -> " <<token<< " )\n";
-    }
-    else{
-        throw runtime_error(token);
+int getTokenType(const string &token, int line_number) {
+    if (isComment(token))
+        return T_COMMENT;
+    else if (isDigit(token))
+        return T_INTLIT;
+    else if (isBoolean(token))
+        return T_BOOL;
+    else if (isSeparator(token))
+        return separators[token];
+    else if (isKeyword(token))
+        return keywords[token];
+    else if (isIdentifier(token))
+        return T_IDENTIFIER;
+    else if (isOperator(token))
+        return operators[token];
+    else if (isString(token))
+        return T_STRLIT;
+    else if (isFloat(token))
+        return T_FLOAT_LIT;
+    else {
+        cerr << "\nSyntax error\nUnexpected token " << token << " on line " << line_number << "\n";
+        exit(2);
     }
 }
 
-void scanner(const string &file_name){
+vector<TokenNode> scanner(const string &file_name) {
+    // populate maps
+    for (int t = T_INT; t <= T_PRINT; t++)
+        keywords.insert({tokenString[t], t});
+
+    for (int t = T_PLUS; t <= T_SLASH_ASSIGN; t++)
+        operators.insert({tokenString[t], t});
+
+    for (int t = T_LCURLY; t <= T_SEMICOLON; t++)
+        separators.insert({tokenString[t], t});
+
     char ch;
-    //comment
+    int line_number = 0;
+    vector<TokenNode> tokens = {};
+    // comment
     bool singlelinecomment = false;
     string buffer;
     string comm;
-    //file handling
+    // file handling
     ifstream infile;
-    infile.open (file_name, ios::in);   //Attempt to open the file
+    infile.open(file_name, ios::in);   // Attempt to open the file
     // Check for file status
     if(infile.fail()) {
-        cout << "File not found" << endl;
+        cerr << "File not found" << endl;
         exit(EXIT_FAILURE);
     }
 
-
-    while (infile >> noskipws >> ch){
+    while (infile >> noskipws >> ch) {
 
         if (singlelinecomment){
             if(ch == '\n'){
-                printToken(comm);
+                line_number++;
+                tokens.push_back(TokenNode(getTokenType(comm, line_number), comm));
                 singlelinecomment = false;
             }
             if (singlelinecomment)
@@ -151,13 +199,15 @@ void scanner(const string &file_name){
             }
         }
 
-        if(isIllegal(string(1, ch))){
+        if(isWhitespace(string(1, ch))){
+            if (string(1, ch) == "\n")
+                line_number++;
             if(!buffer.empty()){
                 if(buffer[0] == '"'){
                     buffer += ch;
                 }
                 else{
-                    printToken(buffer);
+                    tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
                     buffer = "";
                 }
 
@@ -167,36 +217,42 @@ void scanner(const string &file_name){
 
         if (isOperator(string(1, ch)) && !isOperator(buffer)){
             if (!buffer.empty()){
-                printToken(buffer);
+                tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
                 buffer = "";
             }
         }
 
         if (!isOperator(string(1, ch)) && isOperator(buffer)){
-            printToken(buffer);
+            tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
             buffer = "";
         }
 
         if (isSeparator(string(1, ch))) {
             if (!buffer.empty()) {
-                printToken(buffer);
+                tokens.push_back(TokenNode(getTokenType(buffer, line_number), buffer));
                 buffer = "";
             }
             if (isSeparator(string(1, ch))) {
-                printToken(string(1, ch));
+                tokens.push_back(TokenNode(getTokenType(string(1, ch), line_number), buffer));
                 continue;
             }
         }
         buffer += ch;
     }
 
-    //Close the file
+    // Close the file
     infile.close();
+
+    return tokens;
 }
 
+int main(int argc, char** argv) {
+    string file = "c_program.c";
+    if (argc == 2) // i.e. file called using a command line argument
+        file = argv[1];
 
-int main() {
-    string file = "..\\c_program.dat";
-    scanner(file);
+    vector<TokenNode> tokens = scanner(file);
+    for (auto t : tokens)
+        t.print();
     return 0;
 }
