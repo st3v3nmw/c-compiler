@@ -14,7 +14,8 @@ using namespace std;
 enum {
     T_EOF,
     T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, // keywords
-    T_PLUS, T_MINUS, T_STAR, T_SLASH, T_UNARY_ADD, T_UNARY_SUB, // arithmetic operators
+    T_PLUS, T_MINUS, T_STAR, T_SLASH, T_UNARY_PLUS, T_UNARY_MINUS, T_BITW_AND, T_BITW_OR, // arithmetic operators
+    T_NEGATION, T_AND, T_OR,
     T_EQ, T_NEQ, T_LT, T_GT, T_LEQ, T_GEQ, // relational operators
     T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, // assignment operators
     T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, // separators
@@ -25,7 +26,8 @@ enum {
 string tokenString[] = {
     "EOF",
     "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
-    "+", "-", "*", "/", "++", "--",
+    "+", "-", "*", "/", "++", "--", "&", "|",
+    "!", "&&", "||",
     "==", "!=", "<", ">", "<=", ">=",
     "=", "+=", "-=", "*=", "/=",
     "{", "}", ",", "(", ")", ";",
@@ -53,7 +55,7 @@ class TokenNode {
             else {
                 if (this->token >= T_INT && this->token <= T_PRINT)
                     cout << "keyword -> " << tokenString[this->token] << "\n";
-                else if (this->token >= T_PLUS && this->token <= T_PLUS_ASSIGN)
+                else if (this->token >= T_PLUS && this->token <= T_SLASH_ASSIGN)
                     cout << "operator -> " << tokenString[this->token] << "\n";
                 else if (this->token >= T_LCURLY && this->token <= T_SEMICOLON)
                     cout << "separator -> " << tokenString[this->token] << "\n";
@@ -66,7 +68,7 @@ bool isString(const string &str){
     return str[0] == '"' && str[str.size()-1] == '"';
 }
 
-bool isDigit(const string &str){
+bool isInteger(const string &str){
     return all_of(str.begin(), str.end(), ::isdigit);
 }
 
@@ -119,13 +121,13 @@ bool isFloat(const string &str) {
     size_t found = str.find_first_of(".");
     if (found == string::npos)
         return false;
-    return isDigit(str.substr(0, found)) && isDigit(str.substr(found+1));
+    return isInteger(str.substr(0, found)) && isInteger(str.substr(found+1));
 }
 
 int getTokenType(const string &token, int line_number) {
     if (isComment(token))
         return T_COMMENT;
-    else if (isDigit(token))
+    else if (isInteger(token))
         return T_INTLIT;
     else if (isBoolean(token))
         return T_BOOL;
