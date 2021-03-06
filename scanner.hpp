@@ -126,7 +126,7 @@ int getTokenType(const string &token) {
     else {
         cerr << endl << line;
         if (line[line.size() - 1] != '\n')
-            cout << endl;
+            cerr << endl;
         if (token_start_pos - 1 > 0)
             cerr << string(token_start_pos - 1, ' ');
         cerr << string(cur_pos - token_start_pos - 1, '^') << endl;
