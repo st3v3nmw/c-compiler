@@ -1,3 +1,16 @@
+antlr/.antlr
+antlr/C.interp
+antlr/CLexer.interp
+antlr/CLexer.tokens
+antlr/CLexer.py
+antlr/CListener.py
+antlr/CParser.py
+antlr/CVisitor.py
+antlr/C.tokens
+antlr/fuzzer
+tests/generated
+**/__pycache__/**
+
 # Prerequisites
 *.d
 
