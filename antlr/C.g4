@@ -37,10 +37,10 @@ loop_flow_control
     | 'continue;' '\n'?;
 
 declaration
-    : type_specifier ' '? IDENTIFIER ';' '\n'?;
+    : type_specifier ' ' IDENTIFIER ';' '\n'?;
 
 assign
-    : type_specifier? ' '? IDENTIFIER '=' ' '? expression ';' '\n'?;
+    : type_specifier? ' ' IDENTIFIER ' '? '=' ' '? expression ';' '\n'?;
 
 expression
     : factor
@@ -68,12 +68,12 @@ multiplicative_expression
 function
     : function_definition function_body;
 function_definition
-    : type_specifier ' '? IDENTIFIER '(' parameter_list ')';
+    : type_specifier ' ' IDENTIFIER '(' parameter_list ')';
 parameter
-    : type_specifier IDENTIFIER;
+    : type_specifier ' ' IDENTIFIER;
 parameter_list
     : parameter
-    | parameter_list ',' ' '? parameter;
+    | parameter_list ', ' parameter;
 function_body
     : '{' '\n'? statement* ('return' ' '? expression)? ';' '\n'? '}' '\n'?;
 
@@ -94,7 +94,7 @@ FLOAT
     : [+-]?[0-9]+'.'[0-9]+;
 
 STRING
-    : '"' [ 0-z]* '"';
+    : '"' [0-9A_Za-z !#$%&'()+-,./:;<=>?\\@\]\[^_{|}]* '"';
 
 WHITESPACE
     : ' ' -> skip;
