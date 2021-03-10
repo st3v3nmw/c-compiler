@@ -1,0 +1,1 @@
+printf("asfd, $ @ ! ~ # %d asdf",a);
