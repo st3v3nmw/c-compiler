@@ -1,5 +1,6 @@
 #!/bin/bash
 
+clear
 grammarinator-process antlr/C.g4 -o antlr/fuzzer
 grammarinator-generate -p antlr/fuzzer/CUnparser.py -l antlr/fuzzer/CUnlexer.py -d 10 -o tests/generated/test_%d.c -n 1
 
