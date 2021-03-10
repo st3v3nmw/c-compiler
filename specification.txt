@@ -1,11 +1,13 @@
 C subset specification
 ======================
 
+<program> ::= <statement>+
+
 <statement> ::= <assign>
 		| <declaration>
 		| <function>
 		| <loop>
-		| <loop-flow-control>
+		| <if-statement>
 
 <factor> ::= <identifier> | <integer> | <float>
 <identifier> ::= [A-Za-z_][0-9A-Za-z_]*
@@ -14,8 +16,8 @@ C subset specification
 <type-specifier> ::=	int | float | char | void
 
 <loop> ::= <for-loop> | <while-loop>
-<for-loop> ::= for (<expression>?; <expression>?; <expression>?) { <statement> }
-<while-loop> ::= while (<expression>) { <statement> }
+<for-loop> ::= for (<expression>?; <expression>?; <expression>?) { (<statement>|<loop-flow-control>)*}
+<while-loop> ::= while (<expression>) { (<statement>|<loop-flow-control>)* }
 <loop-flow-control> ::= break ;
 			| continue ;
 
@@ -42,14 +44,15 @@ C subset specification
 				| <expression> == <expression>
 				| <logical-expression>
 				
-<logical-expression> ::=	  <relational-expression> && <relational-expression>
+<logical-expression> ::= <relational-expression> && <relational-expression>
 				| <relational-expression> || <relational-expression>
 				| !<relational-expression>
 
 <function> ::= <function-definition> <function-body>
 <function-definition> ::= <type-specifier> <identifier> (<parameter-list>)
-<parameter-list> ::= <parameter-list>
-       | <type-specifier> <identifier> ,?
+<parameter> ::= <type-specifier> <identifier>
+<parameter-list> ::= <parameter>
+       | <parameter-list> , <parameter>
 <function-body> ::= { <statement>* (return <expression>)? }
 
 <if-statement>::= if (<relational-expression>) { <statement>* } <else-if>* <else>?
