@@ -126,12 +126,13 @@ int getTokenType(const string &token) {
     else {
         cerr << endl << line;
         if (line[line.size() - 1] != '\n')
-            cout << endl;
+            cerr << endl;
         if (token_start_pos - 1 > 0)
             cerr << string(token_start_pos - 1, ' ');
         cerr << string(cur_pos - token_start_pos - 1, '^') << endl;
         cerr << "Unexpected token " << token << " on line " << line_number << endl;
-        exit(2);
+        // exit(2);
+        return 0;
     }
 }
 
