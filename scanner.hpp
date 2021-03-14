@@ -114,7 +114,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     infile.putback(ch);
                 }
                 break;
-            case '\"':
+            case '\"': // match strings
                 buffer = "";
                 infile >> noskipws >> ch;
                 while (ch != '\"' && !infile.eof()) {
@@ -217,7 +217,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     }
                     tokens.push_back(TokenNode(tokenType, buffer));
                     infile.putback(ch);
-                } else if (isdigit(ch)) {
+                } else if (isdigit(ch)) { // non-signed number (float or int)
                     buffer = ch + scanNumber();
                     size_t point = buffer.find_first_of(".");
                     if (point == string::npos) // integer
@@ -225,14 +225,14 @@ vector<TokenNode> scanner(const string &file_name) {
                     else // float
                         tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
                 } else if (ch == '+' || ch == '-') {
-                    if (isdigit(infile.peek())) {
+                    if (isdigit(infile.peek())) { // signed number (float or int)
                         buffer = ch + scanNumber();
                         size_t point = buffer.find_first_of(".");
                         if (point == string::npos) // integer
                             tokens.push_back(TokenNode(T_INTLIT, buffer));
                         else // float
                             tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
-                    } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) {
+                    } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) { // unary ++ or --
                         tokens.push_back(TokenNode(infile.peek() == '+' ? T_UNARY_PLUS : T_UNARY_MINUS, infile.peek() == '+' ? "++" : "--"));
                         infile >> noskipws >> ch; // discard
                     } else {
@@ -244,7 +244,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     }
                 } else {
                     if (!(ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r'))
-                        cerr << "alaa -> " << ch << endl;
+                        cerr << "alaa -> " << ch << endl; // token not recognized
                 }
         }
     }
