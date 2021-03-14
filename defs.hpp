@@ -5,26 +5,26 @@
 
 enum {
     T_EOF,
-    T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, // keywords
+    T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, T_FUNC, // keywords
     T_PLUS, T_MINUS, T_STAR, T_SLASH, T_UNARY_PLUS, T_UNARY_MINUS, T_BITW_AND, T_BITW_OR, // arithmetic operators
     T_NEGATION, T_AND, T_OR, // logical operators
     T_EQ, T_NEQ, T_LT, T_GT, T_LEQ, T_GEQ, // relational operators
     T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, // assignment operators
-    T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, // separators
+    T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, T_EMPTY, // separators
     T_INTLIT, T_FLOAT_LIT, T_STRLIT, T_BOOLIT, T_IDENTIFIER, // literals & identifier
-    T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
+    T_COMMENT, T_DIRECT, T_SPECIAL // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
 };
 
 std::string tokenString[] = {
     "EOF",
-    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
+    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf", "function",
     "+", "-", "*", "/", "++", "--", "&", "|",
     "!", "&&", "||",
     "==", "!=", "<", ">", "<=", ">=",
     "=", "+=", "-=", "*=", "/=",
-    "{", "}", ",", "(", ")", ";",
+    "{", "}", ",", "(", ")", ";", "",
     "integer literal", "floating-point literal", "string literal", "boolean literal", "identifier",
-    "comment"
+    "comment", "directive", "special character"
 };
 
 #endif
