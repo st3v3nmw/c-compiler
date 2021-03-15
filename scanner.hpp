@@ -12,12 +12,7 @@
 
 using namespace std;
 
-// global variables
-map<string, int> keywords;
-map<string, int> separators;
-map<string, int> operators;
-string line;
-int line_number, cur_pos, token_start_pos;
+ifstream infile;
 
 class TokenNode {
     public:
@@ -30,7 +25,11 @@ class TokenNode {
         }
 
         void print() {
-            if (this->token >= T_INTLIT)
+            if (this->token == T_STR_LIT)
+                cout << "string -> \"" << this->value << "\"" << endl;
+            else if (this->token == T_CHAR_LIT)
+                cout << "character literal -> '" << this->value << "'" << endl;
+            else if (this->token >= T_INT_LIT)
                 cout << tokenString[this->token] << " -> " << this->value << endl;
             else {
                 if (this->token >= T_INT && this->token <= T_PRINT)
@@ -43,203 +42,211 @@ class TokenNode {
         }
 };
 
-
-bool isString(const string &str){
-    return str[0] == '"' && str[str.size()-1] == '"';
-}
-
-bool isInteger(const string &str){
-    return all_of(str.begin(), str.end(), ::isdigit);
-}
-
-bool isBoolean(const string &str){
-    return str == "true" || str == "false";
-}
-
-bool isComment(const string &str){
-    return str[0] == '/' && str[1] == '/';
-}
-
-bool isWhitespace(const string &str){
-    return str == " " || str == "\n";
-}
-
-bool isIdentifier(const string &str){
-    if(isdigit(str[0])){
-        return false;
+string scanNumber() {
+    string buffer = "";
+    char ch;
+    infile >> noskipws >> ch;
+    while (isdigit(ch) && !infile.eof()) {
+        buffer += ch;
+        infile >> noskipws >> ch;
     }
-    int itr = 0;
-    if(str[0] == '_')
-        itr++;
-    while (itr<str.size()){
-        if(!(isalnum(str[itr]) || str[itr] == '_'))
-            return false;
-        itr++;
-    }
-    return true;
-}
-
-int isKeyword(const string &str){
-    if (keywords.find(str) == keywords.end()) // str not found
-        return 0;
-    return keywords[str]; // return token type
-}
-
-int isOperator(const string &str){
-    if (operators.find(str) == operators.end()) // str not found
-        return 0;
-    return operators[str]; // return token type
-}
-
-int isSeparator(const string &str){
-    if (separators.find(str) == separators.end()) // str not found
-        return 0;
-    return separators[str]; // return token type
-}
-
-bool isFloat(const string &str) {
-    size_t found = str.find_first_of(".");
-    if (found == string::npos)
-        return false;
-    return isInteger(str.substr(0, found)) && isInteger(str.substr(found+1));
-}
-
-int getTokenType(const string &token) {
-    if (isComment(token))
-        return T_COMMENT;
-    else if (isInteger(token))
-        return T_INTLIT;
-    else if (isBoolean(token))
-        return T_BOOL;
-    else if (isSeparator(token))
-        return separators[token];
-    else if (isKeyword(token))
-        return keywords[token];
-    else if (isIdentifier(token))
-        return T_IDENTIFIER;
-    else if (isOperator(token))
-        return operators[token];
-    else if (isString(token))
-        return T_STRLIT;
-    else if (isFloat(token))
-        return T_FLOAT_LIT;
-    else {
-        cerr << endl << line;
-        if (line[line.size() - 1] != '\n')
-            cerr << endl;
-        if (token_start_pos - 1 > 0)
-            cerr << string(token_start_pos - 1, ' ');
-        cerr << string(cur_pos - token_start_pos - 1, '^') << endl;
-        cerr << "Unexpected token " << token << " on line " << line_number << endl;
-        // exit(2);
-        return 0;
-    }
+    if (ch == '.') {
+        buffer += ch;
+        infile >> noskipws >> ch;
+        while (isdigit(ch) && !infile.eof()) {
+            buffer += ch;
+            infile >> noskipws >> ch;
+        }
+        infile.putback(ch);
+    } else
+        infile.putback(ch);
+    return buffer;
 }
 
 vector<TokenNode> scanner(const string &file_name) {
-    // populate keywords map, it maps keywords to T_sth values in the enum
-    for (int t = T_INT; t <= T_PRINT; t++)
-        keywords.insert({tokenString[t], t});
-
-    for (int t = T_PLUS; t <= T_SLASH_ASSIGN; t++)
-        operators.insert({tokenString[t], t});
-
-    for (int t = T_LCURLY; t <= T_SEMICOLON; t++)
-        separators.insert({tokenString[t], t});
-
     char ch;
     vector<TokenNode> tokens = {};
-    // comment
-    bool singlelinecomment = false;
-    string buffer;
-    string comm;
-    // file handling
-    ifstream infile;
+    string buffer = "";
     infile.open(file_name, ios::in);   // attempt to open the file
     // check for file status
-    if(infile.fail()) {
+    if (infile.fail()) {
         perror("file open failed");
         exit(EXIT_FAILURE);
     }
 
+    int line_number = 1;
+
     while (infile >> noskipws >> ch) {
-        line += ch;
-        cur_pos += 1;
-        if (singlelinecomment) {
-            if(ch == '\n') {
-                tokens.push_back(TokenNode(getTokenType(comm), comm));
-                singlelinecomment = false;
-                line_number++;
-                token_start_pos = 1;
-                cur_pos = 1;
-                line = "";
-            }
-            if (singlelinecomment)
-                comm += ch;
-            else
-                comm = "";
-            continue;
-        }
-
-        if (ch == '/'){
-            infile >> ch;
-            if (ch == '/'){
-                singlelinecomment = true;
-                comm += ch;
-            }
-            if (singlelinecomment){
-                comm += ch;
-                continue;
-            }
-        }
-
-        if (isWhitespace(string(1, ch))) {
-            if (!buffer.empty()) {
-                if( buffer[0] == '"' ){
-                    buffer += ch;
-                } else{
-                    tokens.push_back(TokenNode(getTokenType(buffer), buffer));
-                    token_start_pos = cur_pos;
-                    buffer = "";
+        switch (ch) {
+            case '{':
+                tokens.push_back(TokenNode(T_LCURLY, "{"));
+                break;
+            case '}':
+                tokens.push_back(TokenNode(T_RCURLY, "}"));
+                break;
+            case '(':
+                tokens.push_back(TokenNode(T_LPAREN, "("));
+                break;
+            case ')':
+                tokens.push_back(TokenNode(T_RPAREN, ")"));
+                break;
+            case ',':
+                tokens.push_back(TokenNode(T_COMMA, ","));
+                break;
+            case ';':
+                tokens.push_back(TokenNode(T_SEMICOLON, ";"));
+                break;
+            case '=':
+                infile >> noskipws >> ch;
+                if (ch == '=')
+                    tokens.push_back(TokenNode(T_EQ, "=="));
+                else {
+                    tokens.push_back(TokenNode(T_ASSIGN, "="));
+                    infile.putback(ch);
                 }
-
-            }
-
-            if (string(1, ch) == "\n") {
-                line_number++;
-                token_start_pos = 1;
-                cur_pos = 1;
-                line = "";            }
-            continue;
-        }
-
-        if (isOperator(string(1, ch)) && !isOperator(buffer)) {
-            if (!buffer.empty()){
-                tokens.push_back(TokenNode(getTokenType(buffer), buffer));
-                token_start_pos = cur_pos;
+                break;
+            case '\"': // match strings
                 buffer = "";
-            }
-        }
+                infile >> noskipws >> ch;
+                while (ch != '\"' && !infile.eof()) {
+                    buffer += ch;
+                    infile >> noskipws >> ch;
+                    if (ch == '\\' && infile.peek() == '\"') { // process \" string escapes
+                        buffer += ch;
+                        infile >> noskipws >> ch;
+                        buffer += ch;
+                        infile >> noskipws >> ch;
+                    }
+                }
+                tokens.push_back(TokenNode(T_STR_LIT, buffer));
+                break;
+            case '/':
+                infile >> noskipws >> ch;
+                if (ch == '/') { // comment start
+                    buffer = "/";
+                    while (ch != '\n' && !infile.eof()) {
+                        buffer += ch;
+                        infile >> noskipws >> ch;
+                    }
+                    line_number++;
+                    tokens.push_back(TokenNode(T_COMMENT, buffer));
+                } else if (ch == '=') { // /=
+                    tokens.push_back(TokenNode(T_SLASH_ASSIGN, "/="));
+                } else {
+                    tokens.push_back(TokenNode(T_SLASH, "/"));
+                    infile.putback(ch);
+                }
+                break;
+            case '!':
+                infile >> noskipws >> ch;
+                if (ch == '=')
+                    tokens.push_back(TokenNode(T_NEQ, "!="));
+                else {
+                    tokens.push_back(TokenNode(T_NEGATION, "!"));
+                    infile.putback(ch);
+                }
+                break;
+            case '&':
+                infile >> noskipws >> ch;
+                if (ch == '&')
+                    tokens.push_back(TokenNode(T_AND, "&&"));
+                else {
+                    tokens.push_back(TokenNode(T_BITW_AND, "&"));
+                    infile.putback(ch);
+                }
+                break;
+            case '|':
+                infile >> noskipws >> ch;
+                if (ch == '|')
+                    tokens.push_back(TokenNode(T_OR, "||"));
+                else {
+                    tokens.push_back(TokenNode(T_BITW_OR, "|"));
+                    infile.putback(ch);
+                }
+                break;
+            case '*':
+                infile >> noskipws >> ch;
+                if (ch == '=')
+                    tokens.push_back(TokenNode(T_STAR_ASSIGN, "*="));
+                else {
+                    tokens.push_back(TokenNode(T_STAR, "*"));
+                    infile.putback(ch);
+                }
+                break;
+            case '>':
+                infile >> noskipws >> ch;
+                if (ch == '=')
+                    tokens.push_back(TokenNode(T_GEQ, ">="));
+                else {
+                    tokens.push_back(TokenNode(T_GT, ">"));
+                    infile.putback(ch);
+                }
+                break;
+            case '<':
+                infile >> noskipws >> ch;
+                if (ch == '=')
+                    tokens.push_back(TokenNode(T_LEQ, ">="));
+                else {
+                    tokens.push_back(TokenNode(T_LT, ">"));
+                    infile.putback(ch);
+                }
+                break;
+            case '\'':
+                infile >> noskipws >> ch;
+                tokens.push_back(TokenNode(T_CHAR_LIT, ch == '\'' ? "" : string(1, ch)));
+                if (infile.peek() == '\'') // else char literal isn't properly closed
+                    infile >> noskipws >> ch; // consume closing ' and discard it
+                break;
+            default:
+                if (isalpha(ch) || ch == '_') { // match identifier or keyword or boolean literal
+                    buffer = ch;
+                    infile >> noskipws >> ch;
+                    while ((isalnum(ch) || ch == '_') && !infile.eof()) {
+                        buffer += ch;
+                        infile >> noskipws >> ch;
+                    }
 
-        if (!isOperator(string(1, ch)) && isOperator(buffer)) {
-            tokens.push_back(TokenNode(getTokenType(buffer), buffer));
-            token_start_pos = cur_pos;
-            buffer = "";
+                    int tokenType = (buffer == "true" || buffer == "false") ? T_BOOL_LIT : T_IDENTIFIER;
+                    for (int i = T_INT; i <= T_PRINT; i++) {
+                        if (buffer == tokenString[i]) {
+                            tokenType = i;
+                            break;
+                        }
+                    }
+                    tokens.push_back(TokenNode(tokenType, buffer));
+                    infile.putback(ch);
+                } else if (isdigit(ch)) { // non-signed number (float or int)
+                    buffer = ch + scanNumber();
+                    size_t point = buffer.find_first_of(".");
+                    if (point == string::npos) // integer
+                        tokens.push_back(TokenNode(T_INT_LIT, buffer));
+                    else // float
+                        tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
+                } else if (ch == '+' || ch == '-') {
+                    if (isdigit(infile.peek())) { // signed number (float or int)
+                        buffer = ch + scanNumber();
+                        size_t point = buffer.find_first_of(".");
+                        if (point == string::npos) // integer
+                            tokens.push_back(TokenNode(T_INT_LIT, buffer));
+                        else // float
+                            tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
+                    } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) { // unary ++ or --
+                        tokens.push_back(TokenNode(infile.peek() == '+' ? T_UNARY_PLUS : T_UNARY_MINUS, infile.peek() == '+' ? "++" : "--"));
+                        infile >> noskipws >> ch; // consume last + or - and discard it
+                    } else {
+                        if (infile.peek() == '=') {
+                            tokens.push_back(TokenNode(ch == '+' ? T_PLUS_ASSIGN : T_MINUS_ASSIGN, ch == '+' ? "+=" : "-="));
+                            infile >> noskipws >> ch; // consume = and discard it
+                        } else
+                            tokens.push_back(TokenNode(ch == '+' ? T_PLUS : T_MINUS, ch == '+' ? "+" : "-"));
+                    }
+                } else {
+                    if (ch == '\n')
+                        line_number++;
+                    else if (!(ch == ' ' || ch == '\t' || ch == '\r')) // ignore whitespace
+                        cerr << "Unexpected character " << ch << " on line " << line_number << endl;
+                }
         }
-
-        if (isSeparator(string(1, ch))) {
-            if (!buffer.empty()) {
-                tokens.push_back(TokenNode(getTokenType(buffer), buffer));
-                token_start_pos = cur_pos;
-                buffer = "";
-            }
-            if (isSeparator(string(1, ch))) {
-                tokens.push_back(TokenNode(getTokenType(string(1, ch)), buffer));
-                token_start_pos = cur_pos;
-                continue;
-            }
-        }
-        buffer += ch;
     }
 
     // close the file
