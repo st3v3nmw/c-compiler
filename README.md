@@ -30,9 +30,9 @@ See the grammar [here](specification.txt).
 2. Lauch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE.
 3. The test files are found in the `tests` folder.
    - To switch from one testcase to another, you can:
-     1. Change the name in the test file specifier on the `main.cpp` file
-     2. or, use the Makefile i.e. `make o f=tests/submitted.c`
-     3. or, when directly running the executable, `./main tests/submitted.c`
+     1. Use the Makefile i.e. `make o f=tests/submitted.c`
+     2. or, when directly running the executable, `./main tests/submitted.c`
+     3. or, change the name in the test file specifier on the `main.cpp` file
 
 ### Generating testcases using ANTLR
 
