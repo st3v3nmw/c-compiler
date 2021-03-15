@@ -12,9 +12,6 @@
 
 using namespace std;
 
-// global variables
-string line;
-int line_number, cur_pos, token_start_pos;
 ifstream infile;
 
 class TokenNode {
@@ -69,8 +66,6 @@ string scanNumber() {
 vector<TokenNode> scanner(const string &file_name) {
     char ch;
     vector<TokenNode> tokens = {};
-    // comment
-    bool singlelinecomment = false;
     string buffer = "";
     infile.open(file_name, ios::in);   // attempt to open the file
     // check for file status
@@ -78,11 +73,10 @@ vector<TokenNode> scanner(const string &file_name) {
         perror("file open failed");
         exit(EXIT_FAILURE);
     }
-    line = "";
-    line_number = 1, cur_pos = 1, token_start_pos = 1;
+
+    int line_number = 1;
 
     while (infile >> noskipws >> ch) {
-        cur_pos += 1;
         switch (ch) {
             case '{':
                 tokens.push_back(TokenNode(T_LCURLY, "{"));
@@ -134,6 +128,7 @@ vector<TokenNode> scanner(const string &file_name) {
                         buffer += ch;
                         infile >> noskipws >> ch;
                     }
+                    line_number++;
                     tokens.push_back(TokenNode(T_COMMENT, buffer));
                 } else if (ch == '=') { // /=
                     tokens.push_back(TokenNode(T_SLASH_ASSIGN, "/="));
@@ -246,16 +241,10 @@ vector<TokenNode> scanner(const string &file_name) {
                             tokens.push_back(TokenNode(ch == '+' ? T_PLUS : T_MINUS, ch == '+' ? "+" : "-"));
                     }
                 } else {
-                    if (!(ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r')) {
-                        // cerr << endl << line;
-                        // if (line[line.size() - 1] != '\n')
-                        //     cerr << endl;
-                        // if (token_start_pos - 1 > 0)
-                        //     cerr << string(token_start_pos - 1, ' ');
-                        // cerr << string(cur_pos - token_start_pos - 1, '^') << endl;
-                        // cerr << "Unexpected token " << token << " on line " << line_number << endl;
-                        cerr << "alaa -> " << ch << endl; // token not recognized
-                    }
+                    if (ch == '\n')
+                        line_number++;
+                    else if (!(ch == ' ' || ch == '\t' || ch == '\r')) // ignore whitespace
+                        cerr << "Unexpected character " << ch << " on line " << line_number << endl;
                 }
         }
     }
