@@ -21,7 +21,8 @@ See the grammar [here](specification.txt).
 3. The test files are found in the `tests` folder.
    - To switch from one testcase to another, you can:
      1. Change the name in the test file specifier on the `main.cpp` file
-     2. or, use the Makefile i.e. `make o f=tests/submitted.c` or when directly running the executable, `./main tests/submitted.c`
+     2. or, use the Makefile i.e. `make o f=tests/submitted.c`
+     3. or, when directly running the executable, `./main tests/submitted.c`
 
 ### Generating testcases using ANTLR
 
