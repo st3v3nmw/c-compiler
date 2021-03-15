@@ -14,6 +14,12 @@ using namespace std;
 
 ifstream infile;
 
+/*
+    The TokenNode class holds the information about scanned tokens.
+    i.e. Token type and Token value
+    Example: 1. for a string "abcd", the token type is T_STR_LIT and value = "abcd"
+             2. for a keyword "float", the token type is T_KEYWORD and the value = "float"
+*/
 class TokenNode {
     public:
         int token;
@@ -24,6 +30,7 @@ class TokenNode {
             this->value = value;
         }
 
+        // print a string representation of the token
         void print() {
             if (this->token == T_STR_LIT)
                 cout << "string -> \"" << this->value << "\"" << endl;
@@ -42,24 +49,25 @@ class TokenNode {
         }
 };
 
+// scan a number, integer or float
 string scanNumber() {
     string buffer = "";
     char ch;
     infile >> noskipws >> ch;
-    while (isdigit(ch) && !infile.eof()) {
+    while (isdigit(ch) && !infile.eof()) { // scan number before decimal point (if any exists)
         buffer += ch;
         infile >> noskipws >> ch;
     }
-    if (ch == '.') {
+    if (ch == '.') { // decimal point for float
         buffer += ch;
         infile >> noskipws >> ch;
         while (isdigit(ch) && !infile.eof()) {
             buffer += ch;
             infile >> noskipws >> ch;
         }
-        infile.putback(ch);
+        infile.putback(ch); // putback unused character to file stream
     } else
-        infile.putback(ch);
+        infile.putback(ch); // putback unused character to file stream
     return buffer;
 }
 
@@ -68,8 +76,7 @@ vector<TokenNode> scanner(const string &file_name) {
     vector<TokenNode> tokens = {};
     string buffer = "";
     infile.open(file_name, ios::in);   // attempt to open the file
-    // check for file status
-    if (infile.fail()) {
+    if (infile.fail()) { // check for file status
         perror("file open failed");
         exit(EXIT_FAILURE);
     }
@@ -102,7 +109,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_EQ, "=="));
                 else {
                     tokens.push_back(TokenNode(T_ASSIGN, "="));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '\"': // match strings
@@ -122,19 +129,19 @@ vector<TokenNode> scanner(const string &file_name) {
                 break;
             case '/':
                 infile >> noskipws >> ch;
-                if (ch == '/') { // comment start
+                if (ch == '/') { // match comment
                     buffer = "/";
                     while (ch != '\n' && !infile.eof()) {
                         buffer += ch;
                         infile >> noskipws >> ch;
                     }
-                    line_number++;
+                    line_number++; // move count to next line
                     tokens.push_back(TokenNode(T_COMMENT, buffer));
                 } else if (ch == '=') { // /=
                     tokens.push_back(TokenNode(T_SLASH_ASSIGN, "/="));
                 } else {
                     tokens.push_back(TokenNode(T_SLASH, "/"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '!':
@@ -143,7 +150,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_NEQ, "!="));
                 else {
                     tokens.push_back(TokenNode(T_NEGATION, "!"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '&':
@@ -152,7 +159,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_AND, "&&"));
                 else {
                     tokens.push_back(TokenNode(T_BITW_AND, "&"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '|':
@@ -161,7 +168,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_OR, "||"));
                 else {
                     tokens.push_back(TokenNode(T_BITW_OR, "|"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '*':
@@ -170,7 +177,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_STAR_ASSIGN, "*="));
                 else {
                     tokens.push_back(TokenNode(T_STAR, "*"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '>':
@@ -179,19 +186,19 @@ vector<TokenNode> scanner(const string &file_name) {
                     tokens.push_back(TokenNode(T_GEQ, ">="));
                 else {
                     tokens.push_back(TokenNode(T_GT, ">"));
-                    infile.putback(ch);
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
             case '<':
                 infile >> noskipws >> ch;
                 if (ch == '=')
-                    tokens.push_back(TokenNode(T_LEQ, ">="));
+                    tokens.push_back(TokenNode(T_LEQ, "<="));
                 else {
-                    tokens.push_back(TokenNode(T_LT, ">"));
-                    infile.putback(ch);
+                    tokens.push_back(TokenNode(T_LT, "<"));
+                    infile.putback(ch); // putback unused character to file stream
                 }
                 break;
-            case '\'':
+            case '\'': // match a character literal i.e. 'q'
                 infile >> noskipws >> ch;
                 tokens.push_back(TokenNode(T_CHAR_LIT, ch == '\'' ? "" : string(1, ch)));
                 if (infile.peek() == '\'') // else char literal isn't properly closed
@@ -214,8 +221,8 @@ vector<TokenNode> scanner(const string &file_name) {
                         }
                     }
                     tokens.push_back(TokenNode(tokenType, buffer));
-                    infile.putback(ch);
-                } else if (isdigit(ch)) { // non-signed number (float or int)
+                    infile.putback(ch); // putback unused character to file stream
+                } else if (isdigit(ch)) { // match non-signed number (float or int)
                     buffer = ch + scanNumber();
                     size_t point = buffer.find_first_of(".");
                     if (point == string::npos) // integer
@@ -223,14 +230,14 @@ vector<TokenNode> scanner(const string &file_name) {
                     else // float
                         tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
                 } else if (ch == '+' || ch == '-') {
-                    if (isdigit(infile.peek())) { // signed number (float or int)
+                    if (isdigit(infile.peek())) { // match signed number (float or int)
                         buffer = ch + scanNumber();
                         size_t point = buffer.find_first_of(".");
                         if (point == string::npos) // integer
                             tokens.push_back(TokenNode(T_INT_LIT, buffer));
                         else // float
                             tokens.push_back(TokenNode(T_FLOAT_LIT, buffer));
-                    } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) { // unary ++ or --
+                    } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) { // match unary ++ or --
                         tokens.push_back(TokenNode(infile.peek() == '+' ? T_UNARY_PLUS : T_UNARY_MINUS, infile.peek() == '+' ? "++" : "--"));
                         infile >> noskipws >> ch; // consume last + or - and discard it
                     } else {
@@ -242,7 +249,7 @@ vector<TokenNode> scanner(const string &file_name) {
                     }
                 } else {
                     if (ch == '\n')
-                        line_number++;
+                        line_number++; // move count to next line
                     else if (!(ch == ' ' || ch == '\t' || ch == '\r')) // ignore whitespace
                         cerr << "Unexpected character " << ch << " on line " << line_number << endl;
                 }

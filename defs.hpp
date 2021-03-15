@@ -3,6 +3,7 @@
 
 #include <string>
 
+// keep track of token types
 enum {
     T_EOF,
     T_INT, T_FLOAT, T_CHAR, T_BOOL, T_VOID, T_RETURN, T_BREAK, T_CONTINUE, T_FOR, T_WHILE, T_IF, T_ELSE, T_PRINT, // keywords
@@ -15,6 +16,7 @@ enum {
     T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
 };
 
+// string representation of token types above
 std::string tokenString[] = {
     "EOF",
     "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
