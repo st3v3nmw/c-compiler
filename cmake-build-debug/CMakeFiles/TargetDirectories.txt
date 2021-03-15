@@ -1,3 +1,0 @@
-D:/Classwork/CSC326/assignments/compiler-construction/cmake-build-debug/CMakeFiles/compiler_contsruction.dir
-D:/Classwork/CSC326/assignments/compiler-construction/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/Classwork/CSC326/assignments/compiler-construction/cmake-build-debug/CMakeFiles/rebuild_cache.dir

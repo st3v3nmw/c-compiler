@@ -1,3 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2020.3.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\compiler_contsruction.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\compiler_contsruction.dir/objects.a @CMakeFiles\compiler_contsruction.dir\objects1.rsp
-C:\MinGW\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\compiler_contsruction.dir/objects.a -Wl,--no-whole-archive  -o compiler_contsruction.exe -Wl,--out-implib,libcompiler_contsruction.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\compiler_contsruction.dir\linklibs.rsp
