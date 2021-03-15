@@ -5,14 +5,23 @@ A compiler for a [subset](specification.txt) of the C programming language.
 See the grammar [here](specification.txt).
 
 ### Project Requirements
-1. C++17 or later (g++)
 
-### Projet Setup & Technologies
-1. ANTLR
-2. C++
+#### Compulsory
+
+1. C++17 (preferably g++)
+
+#### Optional
+
+1. ANTLR - Test case generation
 
 ### Project Launch
-Clone the project into your computer. You should have C++17 or g++ installed. Lauch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE. The test files are foud in the `tests` folder. To switch from one testcase to another, change the name in the test file specifier on the `main.cpp` file.
+
+1. Clone the project into your computer.
+2. Lauch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE.
+3. The test files are found in the `tests` folder.
+   - To switch from one testcase to another, you can:
+     1. Change the name in the test file specifier on the `main.cpp` file
+     2. or, use the Makefile i.e. `make o f=tests/submitted.c` or when directly running the executable, `./main tests/submitted.c`
 
 ### Generating testcases using ANTLR
 
@@ -22,6 +31,15 @@ Clone the project into your computer. You should have C++17 or g++ installed. La
 
 ### Project Status
 
+1. - [x] Lexical Analyzer
+2. - [ ] Syntax Analyzer
+3. - [ ] Semantic Analyzer
+4. - [ ] Intermediate Code Generator
+5. - [ ] Machine-Independent Code Optimizer
+6. - [ ] Code Generator
+7. - [ ] Machine-Dependent Code Optimizer
+
 ### Illustrations
+
 1. Scanner output
-![Scanner output](output-illustrations/output1.PNG)
+   ![Scanner output](output-illustrations/output1.PNG)
