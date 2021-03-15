@@ -24,4 +24,4 @@ Clone the project into your computer. You should have C++17 or g++ installed. La
 
 ### Illustrations
 1. Scanner output
-![Scanner output](../output-illustrations/output1.PNG)
+![Scanner output](output-illustrations/output1.PNG)
