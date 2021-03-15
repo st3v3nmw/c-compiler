@@ -13,7 +13,7 @@ int main() {
     p = -314.159265;
     r = 42;
     int t = -53;
-    char c = "e";
+    char c = 'e';
 
     // "assignments"
     t += 1;
