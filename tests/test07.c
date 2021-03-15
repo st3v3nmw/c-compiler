@@ -4,7 +4,7 @@ int a = b;
 
 if (a == _b) {
     bool z = true;
-    continue; // hell, yeah!
+    continue; // comment goes here
 }
 
 q = +9.8 - -1.55;
