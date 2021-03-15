@@ -1,6 +1,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#include <string>
+
 // keep track of token types
 enum {
     T_EOF,
