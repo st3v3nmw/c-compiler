@@ -3,11 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <map>
 #include "defs.hpp"
 
 using namespace std;
