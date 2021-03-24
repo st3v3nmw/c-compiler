@@ -27,7 +27,7 @@ See the grammar [here](specification.txt).
 ### Setup
 
 1. Clone the project into your computer.
-2. Lauch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE.
+2. Launch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE.
 3. The test files are found in the `tests` folder.
    - To switch from one testcase to another, you can:
      1. Use the Makefile i.e. `make o f=tests/submitted.c`
