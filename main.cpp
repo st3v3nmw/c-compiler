@@ -1,4 +1,5 @@
 #include "scanner.hpp"
+#include "parser.hpp"
 
 using namespace std;
 
