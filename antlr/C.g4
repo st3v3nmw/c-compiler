@@ -10,7 +10,7 @@ statement
     | loop
     | if_statement;
 
-factor
+term
     : IDENTIFIER
     | INTEGER
     | FLOAT
@@ -43,7 +43,7 @@ assign
     : type_specifier? ' ' IDENTIFIER  '='  expression ';' ;
 
 expression
-    : factor
+    : term
     | arithmetic_expression
     | expression '<' expression
     | expression '<=' expression
@@ -61,9 +61,9 @@ additive_expression
 	| additive_expression '-' multiplicative_expression
     | multiplicative_expression;
 multiplicative_expression
-    : multiplicative_expression '*' factor
-	| multiplicative_expression '/' factor
-	| factor;
+    : multiplicative_expression '*' term
+	| multiplicative_expression '/' term
+	| term;
 
 function
     : function_definition function_body;

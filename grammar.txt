@@ -10,52 +10,28 @@ TSPEC -> int
 TSPEC -> float
 TSPEC -> char
 TSPEC -> void
-OPT_TSPEC -> TSPEC
-OPT_TSPEC -> ''
-
-FACT -> const
-FACT -> id
-
-ADD_OP -> +
-ADD_OP -> -
-MULT_OP -> *
-MULT_OP -> /
-O_OP -> <
-O_OP -> leq
-O_OP -> >
-O_OP -> geq
-O_OP -> !=
-O_OP -> =
-O_OP -> and
-O_OP -> or
-O_OP -> &
-O_OP -> |
-
-EXPR -> ADD EXPR'
-EXPR -> ! EXPR
-EXPR' -> O_OP EXPR
-EXPR' -> ''
-OPT_EXPR -> EXPR
-OPT_EXPR -> ''
-
-ADD -> MULT ADD'
-ADD' -> ADD_OP MULT ADD'
-ADD' -> ''
-
-MULT -> FACT MULT'
-MULT' -> MULT_OP FACT MULT'
-MULT' -> ''
 
 STMTS -> STMT STMTS
 STMTS -> ''
 
+STMT -> DECL_INIT
+STMT -> ASSIGN
 STMT -> IF_STMT
 STMT -> LOOP
-STMT -> DECL_ASSIGN
 
-DECL_ASSIGN -> OPT_TSPEC id ASSIGN
-ASSIGN -> = EXPR ;
-ASSIGN -> ;
+DECL_INIT -> TSPEC id OPT_ASSIGN ;
+OPT_ASSIGN -> = EXPR
+OPT_ASSIGN -> ''
+
+ASSIGN -> id ASSIGN' ;
+ASSIGN' -> ASSIGN_OP EXPR
+ASSIGN' -> ++
+ASSIGN' -> --
+ASSIGN_OP -> =
+ASSIGN_OP -> +=
+ASSIGN_OP -> -=
+ASSIGN_OP -> *=
+ASSIGN_OP -> /=
 
 IF_STMT -> if ( EXPR ) { STMTS } ELSE
 ELSE -> else O_ELSE
@@ -69,3 +45,36 @@ LOOP_STMTS -> STMT LOOP_STMTS
 LOOP_STMTS -> break ; LOOP_STMTS
 LOOP_STMTS -> continue ; LOOP_STMTS
 LOOP_STMTS -> ''
+
+EXPR -> ADD EXPR'
+EXPR -> ! EXPR
+EXPR' -> O_OP EXPR
+EXPR' -> ''
+OPT_EXPR -> EXPR
+OPT_EXPR -> ''
+
+ADD -> MULT ADD'
+ADD' -> ADD_OP MULT ADD'
+ADD' -> ''
+
+MULT -> TERM MULT'
+MULT' -> MULT_OP TERM MULT'
+MULT' -> ''
+
+ADD_OP -> +
+ADD_OP -> -
+MULT_OP -> *
+MULT_OP -> /
+O_OP -> <
+O_OP -> <=
+O_OP -> >
+O_OP -> >=
+O_OP -> !=
+O_OP -> =
+O_OP -> &&
+O_OP -> ||
+O_OP -> &
+O_OP -> |
+
+TERM -> const
+TERM -> id
