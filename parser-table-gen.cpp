@@ -65,6 +65,7 @@ int main() {
     }
 
     char ch;
+    ch;
     map<string, vector<vector<Node>>> productions;
     string buffer = "";
     while (infile >> ch) {

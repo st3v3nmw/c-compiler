@@ -27,20 +27,20 @@ loop
     | while_loop;
 
 for_loop
-    : '\n'? 'for' ' '? '(' expression? ';' expression? ';' expression? ')' ' '? '{' '\n'? (statement | loop_flow_control)* '\n'? '}' '\n'?;
+    :  'for' '(' expression? ';' expression? ';' expression? ')' '{'  (statement | loop_flow_control)* '}' ;
 
 while_loop
-    : '\n'? 'while' ' '? '(' expression ')' ' '? '{' '\n'? (statement | loop_flow_control)* '\n'? '}' '\n'?;
+    :  'while' '(' expression ')' '{'  (statement | loop_flow_control)* '}' ;
 
 loop_flow_control
-    : 'break;' '\n'?
-    | 'continue;' '\n'?;
+    : 'break;' 
+    | 'continue;' ;
 
 declaration
-    : type_specifier ' ' IDENTIFIER ';' '\n'?;
+    : type_specifier ' ' IDENTIFIER ';' ;
 
 assign
-    : type_specifier? ' ' IDENTIFIER ' '? '=' ' '? expression ';' '\n'?;
+    : type_specifier? ' ' IDENTIFIER  '='  expression ';' ;
 
 expression
     : factor
@@ -73,16 +73,16 @@ parameter
     : type_specifier ' ' IDENTIFIER;
 parameter_list
     : parameter
-    | parameter_list ', ' parameter;
+    | parameter_list ','  parameter;
 function_body
-    : '{' '\n'? statement* ('return' ' '? expression)? ';' '\n'? '}' '\n'?;
+    : '{' statement* ('return'  expression)? ';' '}' ;
 
 if_statement
-    : '\n'? 'if' ' '? '(' expression ')' ' '? '{' '\n'? statement* '}' '\n'? else_if* else_bit?;
+    :  'if'  '(' expression ')'  '{'  statement* '}'  else_if* else_bit?;
 else_if
-    : 'else' ' '? 'if' ' '? '(' expression ')' ' '? '{' '\n'? statement* '\n'? '}' '\n'?;
+    : 'else'  'if'  '(' expression ')'  '{'  statement*  '}' ;
 else_bit
-    : 'else' ' '? '{' '\n'? statement* '\n'? '}' '\n'?;
+    : 'else'  '{'  statement*  '}' ;
 
 IDENTIFIER
     : [A-Za-z_][0-9A-Za-z_]*;
@@ -94,7 +94,7 @@ FLOAT
     : [+-]?[0-9]+'.'[0-9]+;
 
 STRING
-    : '"' [0-9A_Za-z !#$%&'()+-,./:;<=>?\\@\]\[^_{|}]* '"';
+    : '"' [0-9A_Za-z !#$%&'()+-,./:;<=>?\\@^{|}]* '"';
 
 WHITESPACE
     : ' ' -> skip;

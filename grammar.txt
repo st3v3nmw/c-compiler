@@ -1,98 +1,71 @@
-program:
-    statement+;
+FNS -> FN FNS
+FNS -> ''
+FN -> TSPEC id ( PL ) { STMTS return EXPR ; }
+PL -> TSPEC id O_PL
+PL -> ''
+O_PL -> , PL
+O_PL -> ''
 
-statement
-    : assign
-    | declaration
-    | function
-    | loop
-    | if_statement;
+TSPEC -> int
+TSPEC -> float
+TSPEC -> char
+TSPEC -> void
+OPT_TSPEC -> TSPEC
+OPT_TSPEC -> ''
 
-factor
-    : IDENTIFIER
-    | INTEGER
-    | FLOAT
-    | STRING;
+FACT -> const
+FACT -> id
 
-type_specifier 
-    : 'int'
-    | 'float'
-    | 'char'
-    | 'void';
+ADD_OP -> +
+ADD_OP -> -
+MULT_OP -> *
+MULT_OP -> /
+O_OP -> <
+O_OP -> leq
+O_OP -> >
+O_OP -> geq
+O_OP -> !=
+O_OP -> =
+O_OP -> and
+O_OP -> or
+O_OP -> &
+O_OP -> |
 
-loop
-    : for_loop
-    | while_loop;
+EXPR -> ADD EXPR'
+EXPR -> ! EXPR
+EXPR' -> O_OP EXPR
+EXPR' -> ''
+OPT_EXPR -> EXPR
+OPT_EXPR -> ''
 
-for_loop
-    :  'for'  '(' expression? ';' expression? ';' expression? ')'  '{'  (statement | loop_flow_control)*  '}' ;
+ADD -> MULT ADD'
+ADD' -> ADD_OP MULT ADD'
+ADD' -> ''
 
-while_loop
-    :  'while'  '(' expression ')'  '{'  (statement | loop_flow_control)*  '}' ;
+MULT -> FACT MULT'
+MULT' -> MULT_OP FACT MULT'
+MULT' -> ''
 
-loop_flow_control
-    : 'break;' 
-    | 'continue;' ;
+STMTS -> STMT STMTS
+STMTS -> ''
 
-declaration
-    : type_specifier ' ' IDENTIFIER ';' ;
+STMT -> IF_STMT
+STMT -> LOOP
+STMT -> DECL_ASSIGN
 
-assign
-    : type_specifier? ' ' IDENTIFIER  '='  expression ';' ;
+DECL_ASSIGN -> OPT_TSPEC id ASSIGN
+ASSIGN -> = EXPR ;
+ASSIGN -> ;
 
-expression
-    : factor
-    | arithmetic_expression
-    | expression '<' expression
-    | expression '<=' expression
-    | expression '>' expression
-    | expression '>=' expression
-    | expression '!=' expression
-    | expression '==' expression
-    | expression '&&' expression
-    | expression '||' expression
-    | '!' expression;
-arithmetic_expression
-    : additive_expression;
-additive_expression
-    : additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
-    | multiplicative_expression;
-multiplicative_expression
-    : multiplicative_expression '*' factor
-	| multiplicative_expression '/' factor
-	| factor;
+IF_STMT -> if ( EXPR ) { STMTS } ELSE
+ELSE -> else O_ELSE
+ELSE -> ''
+O_ELSE -> if ( EXPR ) { STMTS }
+O_ELSE -> { STMTS }
 
-function
-    : function_definition function_body;
-function_definition
-    : type_specifier ' ' IDENTIFIER '(' parameter_list ')';
-parameter
-    : type_specifier ' ' IDENTIFIER;
-parameter_list
-    : parameter
-    | parameter_list ', ' parameter;
-function_body
-    : '{'  statement* ('return'  expression)? ';'  '}' ;
-
-if_statement
-    :  'if'  '(' expression ')'  '{'  statement* '}'  else_if* else_bit?;
-else_if
-    : 'else'  'if'  '(' expression ')'  '{'  statement*  '}' ;
-else_bit
-    : 'else'  '{'  statement*  '}' ;
-
-IDENTIFIER
-    : [A-Za-z_][0-9A-Za-z_]*;
-
-INTEGER
-    : [+-]?[0-9]+;
-
-FLOAT
-    : [+-]?[0-9]+'.'[0-9]+;
-
-STRING
-    : '"' [0-9A_Za-z !#$%&'()+-,./:;<=>?\\@\]\[^_{|}]* '"';
-
-WHITESPACE
-    : ' ' -> skip;
+LOOP -> while ( EXPR ) { LOOP_STMTS }
+LOOP -> for ( OPT_EXPR ; OPT_EXPR ; OPT_EXPR ) { LOOP_STMTS }
+LOOP_STMTS -> STMT LOOP_STMTS
+LOOP_STMTS -> break ; LOOP_STMTS
+LOOP_STMTS -> continue ; LOOP_STMTS
+LOOP_STMTS -> ''
