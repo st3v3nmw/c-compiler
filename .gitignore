@@ -10,7 +10,10 @@ antlr/C.tokens
 antlr/fuzzer
 tests/generated
 **/__pycache__/**
-scanner
+.idea
+cmake-build-debug
+CMakeLists.txt
+parser-table-gen
 
 # Prerequisites
 *.d
@@ -45,3 +48,4 @@ scanner
 *.out
 *.app
 main
+scanner

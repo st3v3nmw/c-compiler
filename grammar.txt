@@ -1,0 +1,99 @@
+OUTER_STMTS -> TSPEC id OUTER_STMT OUTER_STMTS
+OUTER_STMTS -> ''
+
+OUTER_STMT -> FN
+OUTER_STMT -> OPT_ASSIGN ;
+
+FN -> ( PL ) { INNER_STMTS OPT_RETURN }
+PL -> TSPEC id O_PL
+PL -> ''
+O_PL -> , PL
+O_PL -> ''
+OPT_RETURN -> return EXPR ;
+OPT_RETURN -> ''
+
+TSPEC -> int
+TSPEC -> float
+TSPEC -> char
+TSPEC -> void
+
+INNER_STMTS -> INNER_STMT INNER_STMTS
+INNER_STMTS -> ''
+
+INNER_STMT -> DECL_INIT ;
+INNER_STMT -> id ASSIGN_FNCALL ;
+INNER_STMT -> IF_STMT
+INNER_STMT -> LOOP
+INNER_STMT -> printf ( ARGS ) ;
+
+DECL_INIT -> TSPEC id OPT_ASSIGN
+OPT_ASSIGN -> = EXPR
+OPT_ASSIGN -> ''
+
+ASSIGN_FNCALL -> ( ARGS )
+ASSIGN_FNCALL -> ASSIGN'
+ASSIGN' -> ASSIGN_OP EXPR
+ASSIGN' -> ++
+ASSIGN' -> --
+ASSIGN_OP -> =
+ASSIGN_OP -> +=
+ASSIGN_OP -> -=
+ASSIGN_OP -> *=
+ASSIGN_OP -> /=
+
+IF_STMT -> if ( EXPR ) { INNER_STMTS } ELSE
+ELSE -> else O_ELSE
+ELSE -> ''
+O_ELSE -> if ( EXPR ) { INNER_STMTS }
+O_ELSE -> { INNER_STMTS }
+
+LOOP -> while ( EXPR ) { LOOP_STMTS }
+LOOP -> for ( OPT_EXPR ; OPT_EXPR ; OPT_EXPR ) { LOOP_STMTS }
+LOOP_STMTS -> STMT LOOP_STMTS
+LOOP_STMTS -> break ; LOOP_STMTS
+LOOP_STMTS -> continue ; LOOP_STMTS
+LOOP_STMTS -> ''
+
+ARGS -> EXPR OPT_ARGS
+ARGS -> ''
+OPT_ARGS -> , ARGS
+OPT_ARGS -> ''
+
+EXPR -> ADD EXPR'
+EXPR -> ! EXPR
+EXPR' -> O_OP EXPR
+EXPR' -> ''
+OPT_EXPR -> EXPR
+OPT_EXPR -> ''
+
+ADD -> MULT ADD'
+ADD' -> ADD_OP MULT ADD'
+ADD' -> ''
+
+MULT -> TERM MULT'
+MULT' -> MULT_OP TERM MULT'
+MULT' -> ''
+
+ADD_OP -> +
+ADD_OP -> -
+MULT_OP -> *
+MULT_OP -> /
+O_OP -> <
+O_OP -> <=
+O_OP -> >
+O_OP -> >=
+O_OP -> !=
+O_OP -> =
+O_OP -> &&
+O_OP -> ||
+O_OP -> &
+O_OP -> |
+
+TERM -> CONST
+TERM -> id
+
+CONST -> int_lit
+CONST -> float_lit
+CONST -> str_lit
+CONST -> char_lit
+CONST -> bool_lit

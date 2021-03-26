@@ -9,7 +9,7 @@ C subset specification
 		| <loop>
 		| <if-statement>
 
-<factor> ::= <identifier> | <integer> | <float>
+<term> ::= <identifier> | <integer> | <float>
 <identifier> ::= [A-Za-z_][0-9A-Za-z_]*
 <integer> ::= [+-]?[0-9]+
 <float> ::= [+-]?[0-9]+.[0-9]+
@@ -24,7 +24,7 @@ C subset specification
 <declaration> ::= <type-specifier> <identifier>;
 <assign> ::= <type-specifier>? <identifier> = <expression>
 
-<expression> ::= <factor>
+<expression> ::= <term>
 		| <arithmetic-expression>
 		| <relational-expression>
 
@@ -32,9 +32,9 @@ C subset specification
 <additive-expression> ::= <additive-expression> + <multiplicative-expression>
 			    | <additive-expression> - <multiplicative-expression>
 			    | <multiplicative-expression>
-<multiplicative-expression> ::= <multiplicative-expression> * <factor>
-				| <multiplicative-expression> / <factor>
-				| <factor>
+<multiplicative-expression> ::= <multiplicative-expression> * <term>
+				| <multiplicative-expression> / <term>
+				| <term>
 
 <relational-expression> ::=	 <expression> < <expression>
  				| <expression> <= <expression>
