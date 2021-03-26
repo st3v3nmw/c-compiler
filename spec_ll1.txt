@@ -89,9 +89,9 @@ O_OP ::= ||
 O_OP ::= &
 O_OP ::= |
 
+TERM ::= ( EXPR )
 TERM ::= CONST
 TERM ::= id
-TERM ::= ( EXPR )
 
 CONST ::= int_lit
 CONST ::= float_lit
