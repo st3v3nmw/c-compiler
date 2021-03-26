@@ -15,7 +15,7 @@ cmake-build-debug
 CMakeLists.txt
 parser-table-gen
 table.json
-table.out
+t_g.json
 
 # Prerequisites
 *.d
@@ -51,3 +51,4 @@ table.out
 *.app
 main
 scanner
+parser

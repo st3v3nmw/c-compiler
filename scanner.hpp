@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SCANNER_H
 #define SCANNER_H
 
@@ -72,7 +73,7 @@ string scanNumber() {
     return buffer;
 }
 
-pair<vector<TokenNode>, vector<string>> scanner(const string &file_name) {
+pair<vector<TokenNode>, vector<string>> scan(const string &file_name) {
     infile.open(file_name, ios::in);   // attempt to open the file
     if (infile.fail()) { // check for file status
         perror("file open failed");

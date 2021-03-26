@@ -31,3 +31,29 @@ r = r.replace("'", "\"")
 
 with open("table.out", 'w') as f:
     f.write(r)
+
+
+obj = json.load(open("t_g.json", 'r'))
+
+grammar = {}
+for r in obj:
+    name = r["lhs"]
+    if len(r["rhs"]) > 0:
+        if name in grammar:
+            grammar[name].append(r["rhs"])
+        else:
+            grammar[name] = [r["rhs"]]
+
+r = "{"
+for key in grammar:
+    r += "{\"" + key + "\"," + str(grammar[key]) + "},"
+if r[-1] == ',':
+    r = r[:-1]
+r += "}"
+r = r.replace('[', '{')
+r = r.replace(']', '}')
+r = r.replace("'", "\"")
+print(r)
+
+with open("t_g.out", 'w') as f:
+    f.write(r)
