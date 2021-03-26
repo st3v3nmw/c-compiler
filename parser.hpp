@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <stack>
 #include "defs.hpp"
 
 using namespace std;
