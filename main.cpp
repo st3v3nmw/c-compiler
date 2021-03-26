@@ -1,4 +1,5 @@
 #include "scanner.hpp"
+#include "parser.hpp"
 #include <tuple>
 
 using namespace std;

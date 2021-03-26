@@ -13,6 +13,7 @@ tests/generated
 .idea
 cmake-build-debug
 CMakeLists.txt
+parser-table-gen
 
 # Prerequisites
 *.d

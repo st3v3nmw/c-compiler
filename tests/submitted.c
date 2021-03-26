@@ -7,7 +7,7 @@ void handle_print(int x, int y, int i) { // handling functions
         printf("Y is maximum");
     }
 }
- 
+
 int main(){
     int value1 = 10;// Token identifier
     int value2 = 20;
