@@ -49,8 +49,6 @@ class TokenNode {
             }
             cout << endl;
         }
-        cout << endl;
-    }
 };
 
 // scan a number, integer or float

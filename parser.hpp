@@ -19,10 +19,10 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
     vector<string> next;
 
     // add $ as end of input in input stack
-    input.push(TokenNode(-1, "$", -1, -1));
+    input.push(TokenNode(T_EOF, "$", -1, -1));
     reverse(tokens.begin(), tokens.end());
     for (TokenNode node: tokens) {
-        // discard the T_COMMENT token since they're not useful here
+        // discard T_COMMENT tokens since they're not useful here
         if (node.token != T_COMMENT)
             input.push(node);
     }
