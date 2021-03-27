@@ -2,7 +2,7 @@
 
 A compiler for a subset of the C programming language.
 
-See the grammar [here](specification.txt). Or [this](spec_ll1.txt) for the LL(1) & updated version.
+See the grammar [here](specification.txt).
 
 ### Project Status
 
