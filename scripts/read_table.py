@@ -2,7 +2,7 @@ import json
 import re
 
 
-obj = json.load(open("table.json", 'r'))
+obj = json.load(open("transition.json", 'r'))
 
 table = {}
 for prod in obj:
@@ -29,11 +29,11 @@ r = r.replace('[', '{')
 r = r.replace(']', '}')
 r = r.replace("'", "\"")
 
-with open("table.out", 'w') as f:
+with open("transition.out", 'w') as f:
     f.write(r)
 
 
-obj = json.load(open("t_g.json", 'r'))
+obj = json.load(open("t_grammar.json", 'r'))
 
 grammar = {}
 for r in obj:
@@ -55,5 +55,5 @@ r = r.replace(']', '}')
 r = r.replace("'", "\"")
 print(r)
 
-with open("t_g.out", 'w') as f:
+with open("t_grammar.out", 'w') as f:
     f.write(r)

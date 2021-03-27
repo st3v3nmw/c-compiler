@@ -1,8 +1,8 @@
 ## C-Language Compiler Implementation
 
-A compiler for a subset of the C programming language.
+A compiler for a subset of the C programming language (written in C++).
 
-See the grammar [here](specification.txt).
+See the grammar [here](specification.txt). (Or [this](assets/C.g4) for the ANTLR version).
 
 ### Project Status
 
@@ -16,13 +16,7 @@ See the grammar [here](specification.txt).
 
 ### Project Requirements
 
-#### Compulsory
-
 1. C++17 (preferably g++)
-
-#### Optional
-
-1. ANTLR - Test case generation
 
 ### Setup
 
@@ -34,13 +28,7 @@ See the grammar [here](specification.txt).
      2. or, when directly running the executable, `./main tests/submitted.c`
      3. or, change the name in the test file specifier on the `main.cpp` file
 
-### Generating testcases using ANTLR
-
-1. Install [ANTLR4](https://www.antlr.org/download.html)
-2. Install [grammarinator](https://github.com/renatahodovan/grammarinator)
-3. Run [generate.sh](generate.sh) which generates some test cases & runs them
-
-### Illustrations
+### Screenshots
 
 1. Scanner output
-   ![Scanner output](output-illustrations/output1.PNG)
+   ![Scanner output](assets/scanner.png)

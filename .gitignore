@@ -13,9 +13,8 @@ tests/generated
 .idea
 cmake-build-debug
 CMakeLists.txt
-parser-table-gen
-table.json
-t_g.json
+transition.json
+t_grammar.json
 
 # Prerequisites
 *.d
