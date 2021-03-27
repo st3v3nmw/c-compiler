@@ -17,9 +17,14 @@ int main(int argc, char** argv) {
 
     vector<TokenNode> tokens;
     vector<string> lines;
-    tie(tokens, lines) = scanner(test_file_path); // scan for all tokens
-    for (auto t : tokens)
-        t.print();  // print the tokens
+
+    cout << "Scanning..." << endl;
+    tie(tokens, lines) = scan(test_file_path); // scan for all tokens
+    // for (auto t : tokens)
+    //     t.print();  // print the tokens
+
+    cout << "Parsing..." << endl;
+    parse(tokens, lines);
 
     return 0;
 }
