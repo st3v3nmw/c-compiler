@@ -51,7 +51,7 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
                 input.pop();
                 cout << "Matched " << curr_inp << " " << curr_node.value << endl;
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
-                cout << "Setting " << rule << " to Ɛ" << endl; 
+                cout << "Setting " << rule << " to Ɛ" << endl;
             } else { // error
                 cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
                 cerr << "\n" << lines[curr_node.line_number] << endl;

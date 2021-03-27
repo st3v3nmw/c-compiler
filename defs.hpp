@@ -24,28 +24,28 @@ enum {
 
 // string representation of token types above
 string tokenString[] = {
-    "EOF",
-    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
-    "+", "-", "*", "/", "++", "--", "&", "|",
-    "!", "&&", "||",
-    "==", "!=", "<", ">", "<=", ">=",
-    "=", "+=", "-=", "*=", "/=",
-    "{", "}", ",", "(", ")", ";",
-    "integer literal", "floating-point literal", "string literal", "character literal", "boolean literal", "identifier",
-    "comment"
+        "EOF",
+        "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
+        "+", "-", "*", "/", "++", "--", "&", "|",
+        "!", "&&", "||",
+        "==", "!=", "<", ">", "<=", ">=",
+        "=", "+=", "-=", "*=", "/=",
+        "{", "}", ",", "(", ")", ";",
+        "integer literal", "floating-point literal", "string literal", "character literal", "boolean literal", "identifier",
+        "comment"
 };
 
 // cause C++ doesn't support enum -> string conversion, ¯\_(ツ)_/¯
 string formalTokenString[] = {
-    "T_EOF",
-    "T_INT", "T_FLOAT", "T_CHAR", "T_BOOL", "T_VOID", "T_RETURN", "T_BREAK", "T_CONTINUE", "T_FOR", "T_WHILE", "T_IF", "T_ELSE", "T_PRINT",
-    "T_PLUS", "T_MINUS", "T_STAR", "T_SLASH", "T_UNARY_PLUS", "T_UNARY_MINUS", "T_BITW_AND", "T_BITW_OR",
-    "T_NEGATION", "T_AND", "T_OR",
-    "T_EQ", "T_NEQ", "T_LT", "T_GT", "T_LEQ", "T_GEQ",
-    "T_ASSIGN", "T_PLUS_ASSIGN", "T_MINUS_ASSIGN", "T_STAR_ASSIGN", "T_SLASH_ASSIGN",
-    "T_LCURLY", "T_RCURLY", "T_COMMA", "T_LPAREN", "T_RPAREN", "T_SEMICOLON",
-    "T_INT_LIT", "T_FLOAT_LIT", "T_STR_LIT", "T_CHAR_LIT", "T_BOOL_LIT", "T_IDENTIFIER",
-    "T_COMMENT"
+        "T_EOF",
+        "T_INT", "T_FLOAT", "T_CHAR", "T_BOOL", "T_VOID", "T_RETURN", "T_BREAK", "T_CONTINUE", "T_FOR", "T_WHILE", "T_IF", "T_ELSE", "T_PRINT",
+        "T_PLUS", "T_MINUS", "T_STAR", "T_SLASH", "T_UNARY_PLUS", "T_UNARY_MINUS", "T_BITW_AND", "T_BITW_OR",
+        "T_NEGATION", "T_AND", "T_OR",
+        "T_EQ", "T_NEQ", "T_LT", "T_GT", "T_LEQ", "T_GEQ",
+        "T_ASSIGN", "T_PLUS_ASSIGN", "T_MINUS_ASSIGN", "T_STAR_ASSIGN", "T_SLASH_ASSIGN",
+        "T_LCURLY", "T_RCURLY", "T_COMMA", "T_LPAREN", "T_RPAREN", "T_SEMICOLON",
+        "T_INT_LIT", "T_FLOAT_LIT", "T_STR_LIT", "T_CHAR_LIT", "T_BOOL_LIT", "T_IDENTIFIER",
+        "T_COMMENT"
 };
 
 // LL(1) grammar

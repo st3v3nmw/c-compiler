@@ -1,0 +1,3 @@
+D:/Computer Science/Projects/C++/scanner2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+D:/Computer Science/Projects/C++/scanner2/cmake-build-debug/CMakeFiles/scanner2.dir
+D:/Computer Science/Projects/C++/scanner2/cmake-build-debug/CMakeFiles/edit_cache.dir
