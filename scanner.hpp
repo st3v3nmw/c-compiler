@@ -19,33 +19,35 @@ ifstream infile;
              2. for a keyword "float", the token type is T_KEYWORD and the value = "float"
 */
 class TokenNode {
-public:
-    int token, line_number, token_end;
-    string value;
+    public:
+        int token, line_number, token_end;
+        string value;
 
-    TokenNode(int token, string value, int line_number, int token_end) {
-        this->token = token;
-        this->value = value;
-        this->line_number = line_number;
-        this->token_end = token_end;;
-    }
+        TokenNode(int token, string value, int line_number, int token_end) {
+            this->token = token;
+            this->value = value;
+            this->line_number = line_number;
+            this->token_end = token_end;;
+        }
 
-    // print a string representation of the token
-    void print() {
-        cout << "(line " << line_number + 1 << " " << token_end - value.size() << ":" << token_end << ") ";
-        if (token == T_STR_LIT)
-            cout << "string -> \"" << value << "\"";
-        else if (token == T_CHAR_LIT)
-            cout << "character literal -> '" << value << "'";
-        else if (token >= T_INT_LIT)
-            cout << tokenString[token] << " -> " << value;
-        else {
-            if (token >= T_INT && token <= T_PRINT)
-                cout << "keyword -> " << tokenString[token];
-            else if (token >= T_PLUS && token <= T_SLASH_ASSIGN)
-                cout << "operator -> " << tokenString[token];
-            else if (token >= T_LCURLY && token <= T_SEMICOLON)
-                cout << "separator -> " << tokenString[token];
+        // print a string representation of the token
+        void print() {
+            cout << "(line " << line_number + 1 << " " << token_end - value.size() << ":" << token_end << ") ";
+            if (token == T_STR_LIT)
+                cout << "string -> \"" << value << "\"";
+            else if (token == T_CHAR_LIT)
+                cout << "character literal -> '" << value << "'";
+            else if (token >= T_INT_LIT)
+                cout << tokenString[token] << " -> " << value;
+            else {
+                if (token >= T_INT && token <= T_PRINT)
+                    cout << "keyword -> " << tokenString[token];
+                else if (token >= T_PLUS && token <= T_SLASH_ASSIGN)
+                    cout << "operator -> " << tokenString[token];
+                else if (token >= T_LCURLY && token <= T_SEMICOLON)
+                    cout << "separator -> " << tokenString[token];
+            }
+            cout << endl;
         }
         cout << endl;
     }

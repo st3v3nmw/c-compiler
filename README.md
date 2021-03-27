@@ -1,8 +1,8 @@
 ## C-Language Compiler Implementation
 
-A compiler for a [subset](specification.txt) of the C programming language.
+A compiler for a subset of the C programming language.
 
-See the grammar [here](specification.txt).
+See the grammar [here](specification.txt). Or [this](spec_ll1.txt) for the LL(1) & updated version.
 
 ### Project Status
 
