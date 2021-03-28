@@ -4,6 +4,8 @@ A compiler for a subset of the C programming language (written in C++).
 
 See the grammar [here](specification.txt). (Or [this](assets/C.g4) for the ANTLR version).
 
+The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.google.com/spreadsheets/d/1F-eJwgGijExL0FjVoafF_rrcgbAnOpWvMyG7Qhu3K1k/edit?usp=sharing).
+
 ### Project Status
 
 1. - [x] Lexical Analyzer
@@ -27,10 +29,6 @@ See the grammar [here](specification.txt). (Or [this](assets/C.g4) for the ANTLR
      1. Use the Makefile i.e. `make o f=tests/submitted.c`
      2. or, when directly running the executable, `./main tests/submitted.c`
      3. or, change the name in the test file specifier on the `main.cpp` file
-
-### Parser
-
-The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.google.com/spreadsheets/d/1F-eJwgGijExL0FjVoafF_rrcgbAnOpWvMyG7Qhu3K1k/edit?usp=sharing).
 
 ### Screenshots
 

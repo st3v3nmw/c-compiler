@@ -4,7 +4,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <array>
 #include <unordered_set>
 
 using namespace std;
@@ -19,33 +18,33 @@ enum {
     T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, // assignment operators
     T_LCURLY, T_RCURLY, T_COMMA, T_LPAREN, T_RPAREN, T_SEMICOLON, // separators
     T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT, T_IDENTIFIER, // literals & identifier
-    T_COMMENT // not really a token, but put here T_FOR "pedagogical" reasons, will be discarded in next phase of compilation
+    T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
 };
 
 // string representation of token types above
 string tokenString[] = {
-        "EOF",
-        "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
-        "+", "-", "*", "/", "++", "--", "&", "|",
-        "!", "&&", "||",
-        "==", "!=", "<", ">", "<=", ">=",
-        "=", "+=", "-=", "*=", "/=",
-        "{", "}", ",", "(", ")", ";",
-        "integer literal", "floating-point literal", "string literal", "character literal", "boolean literal", "identifier",
-        "comment"
+    "EOF",
+    "int", "float", "char", "bool", "void", "return", "break", "continue", "for", "while", "if", "else", "printf",
+    "+", "-", "*", "/", "++", "--", "&", "|",
+    "!", "&&", "||",
+    "==", "!=", "<", ">", "<=", ">=",
+    "=", "+=", "-=", "*=", "/=",
+    "{", "}", ",", "(", ")", ";",
+    "integer literal", "floating-point literal", "string literal", "character literal", "boolean literal", "identifier",
+    "comment"
 };
 
 // cause C++ doesn't support enum -> string conversion, ¯\_(ツ)_/¯
 string formalTokenString[] = {
-        "T_EOF",
-        "T_INT", "T_FLOAT", "T_CHAR", "T_BOOL", "T_VOID", "T_RETURN", "T_BREAK", "T_CONTINUE", "T_FOR", "T_WHILE", "T_IF", "T_ELSE", "T_PRINT",
-        "T_PLUS", "T_MINUS", "T_STAR", "T_SLASH", "T_UNARY_PLUS", "T_UNARY_MINUS", "T_BITW_AND", "T_BITW_OR",
-        "T_NEGATION", "T_AND", "T_OR",
-        "T_EQ", "T_NEQ", "T_LT", "T_GT", "T_LEQ", "T_GEQ",
-        "T_ASSIGN", "T_PLUS_ASSIGN", "T_MINUS_ASSIGN", "T_STAR_ASSIGN", "T_SLASH_ASSIGN",
-        "T_LCURLY", "T_RCURLY", "T_COMMA", "T_LPAREN", "T_RPAREN", "T_SEMICOLON",
-        "T_INT_LIT", "T_FLOAT_LIT", "T_STR_LIT", "T_CHAR_LIT", "T_BOOL_LIT", "T_IDENTIFIER",
-        "T_COMMENT"
+    "T_EOF",
+    "T_INT", "T_FLOAT", "T_CHAR", "T_BOOL", "T_VOID", "T_RETURN", "T_BREAK", "T_CONTINUE", "T_FOR", "T_WHILE", "T_IF", "T_ELSE", "T_PRINT",
+    "T_PLUS", "T_MINUS", "T_STAR", "T_SLASH", "T_UNARY_PLUS", "T_UNARY_MINUS", "T_BITW_AND", "T_BITW_OR",
+    "T_NEGATION", "T_AND", "T_OR",
+    "T_EQ", "T_NEQ", "T_LT", "T_GT", "T_LEQ", "T_GEQ",
+    "T_ASSIGN", "T_PLUS_ASSIGN", "T_MINUS_ASSIGN", "T_STAR_ASSIGN", "T_SLASH_ASSIGN",
+    "T_LCURLY", "T_RCURLY", "T_COMMA", "T_LPAREN", "T_RPAREN", "T_SEMICOLON",
+    "T_INT_LIT", "T_FLOAT_LIT", "T_STR_LIT", "T_CHAR_LIT", "T_BOOL_LIT", "T_IDENTIFIER",
+    "T_COMMENT"
 };
 
 // cause C++ doesn't support string -> enum conversion, ¯\_(ツ)_/¯
@@ -67,41 +66,41 @@ unordered_set<string> nullable = { "OUTER_STMTS", "PL", "O_PL", "OPT_RETURN", "I
 
 // FIRST sets
 unordered_map<string, vector<int>> first = {
-        {"OUTER_STMTS", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
-        {"OUTER_STMT",	{T_SEMICOLON, T_LPAREN, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
-        {"FN", {T_LPAREN}},
-        {"PL", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
-        {"O_PL", {T_COMMA}},
-        {"OPT_RETURN", {T_RETURN}},
-        {"TSPEC", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
-        {"OPT_TSPEC", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
-        {"INNER_STMTS",	{T_IDENTIFIER, T_PRINT, T_BREAK, T_CONTINUE, T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL, T_IF, T_WHILE, T_FOR}},
-        {"INNER_STMT",	{T_IDENTIFIER, T_PRINT, T_BREAK, T_CONTINUE, T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL, T_IF, T_WHILE, T_FOR}},
-        {"DECL_INIT", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
-        {"OPT_ASSIGN", {T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
-        {"ASSIGN_FNCALL", {T_LPAREN, T_UNARY_PLUS, T_UNARY_MINUS, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
-        {"ASSIGN_P", {T_UNARY_PLUS, T_UNARY_MINUS, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
-        {"ASSIGN_OP", {T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
-        {"IF_STMT", {T_IF}},
-        {"ELSE", {T_ELSE}},
-        {"O_ELSE", {T_IF, T_LCURLY}},
-        {"LOOP", {T_WHILE, T_FOR}},
-        {"FOR_P", {T_IDENTIFIER}},
-        {"ARGS", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"OPT_ARGS", {T_COMMA}},
-        {"EXPR", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"EXPR_P", {T_LT, T_LEQ, T_GT, T_GEQ, T_EQ, T_NEQ, T_AND, T_OR, T_BITW_AND, T_BITW_OR}},
-        {"OPT_EXPR", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"ADD",	{T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"ADD_P", {T_PLUS, T_MINUS}},
-        {"MULT", {T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"MULT_P", {T_STAR, T_SLASH}},
-        {"ADD_OP", {T_PLUS, T_MINUS}},
-        {"MULT_OP", {T_STAR, T_SLASH}},
-        {"O_OP", {T_LT, T_LEQ, T_GT, T_GEQ, T_EQ, T_NEQ, T_AND, T_OR, T_BITW_AND, T_BITW_OR}},
-        {"TERM", {T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
-        {"TERM_FNCALL",	{T_LPAREN}},
-        {"CONST", {T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}}
+    {"OUTER_STMTS", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
+    {"OUTER_STMT", {T_SEMICOLON, T_LPAREN, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
+    {"FN", {T_LPAREN}},
+    {"PL", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
+    {"O_PL", {T_COMMA}},
+    {"OPT_RETURN", {T_RETURN}},
+    {"TSPEC", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
+    {"OPT_TSPEC", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
+    {"INNER_STMTS", {T_IDENTIFIER, T_PRINT, T_BREAK, T_CONTINUE, T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL, T_IF, T_WHILE, T_FOR}},
+    {"INNER_STMT", {T_IDENTIFIER, T_PRINT, T_BREAK, T_CONTINUE, T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL, T_IF, T_WHILE, T_FOR}},
+    {"DECL_INIT", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
+    {"OPT_ASSIGN", {T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
+    {"ASSIGN_FNCALL", {T_LPAREN, T_UNARY_PLUS, T_UNARY_MINUS, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
+    {"ASSIGN_P", {T_UNARY_PLUS, T_UNARY_MINUS, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
+    {"ASSIGN_OP", {T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN}},
+    {"IF_STMT", {T_IF}},
+    {"ELSE", {T_ELSE}},
+    {"O_ELSE", {T_IF, T_LCURLY}},
+    {"LOOP", {T_WHILE, T_FOR}},
+    {"FOR_P", {T_IDENTIFIER}},
+    {"ARGS", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"OPT_ARGS", {T_COMMA}},
+    {"EXPR", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"EXPR_P", {T_LT, T_LEQ, T_GT, T_GEQ, T_EQ, T_NEQ, T_AND, T_OR, T_BITW_AND, T_BITW_OR}},
+    {"OPT_EXPR", {T_NEGATION, T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"ADD", {T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"ADD_P", {T_PLUS, T_MINUS}},
+    {"MULT", {T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"MULT_P", {T_STAR, T_SLASH}},
+    {"ADD_OP", {T_PLUS, T_MINUS}},
+    {"MULT_OP", {T_STAR, T_SLASH}},
+    {"O_OP", {T_LT, T_LEQ, T_GT, T_GEQ, T_EQ, T_NEQ, T_AND, T_OR, T_BITW_AND, T_BITW_OR}},
+    {"TERM", {T_LPAREN, T_IDENTIFIER, T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}},
+    {"TERM_FNCALL", {T_LPAREN}},
+    {"CONST", {T_INT_LIT, T_FLOAT_LIT, T_STR_LIT, T_CHAR_LIT, T_BOOL_LIT}}
 };
 
 // parser predictive table

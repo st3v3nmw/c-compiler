@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     // for (auto t : tokens)
     //     t.print();  // print the tokens
 
-    cout << "Parsing..." << endl;
+    cout << "\nParsing..." << endl;
     parse(tokens, lines);
 
     return 0;

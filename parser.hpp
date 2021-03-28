@@ -3,7 +3,6 @@
 #define PARSER_H
 
 #include <iostream>
-#include <map>
 #include <vector>
 #include <stack>
 #include <algorithm>
@@ -12,31 +11,14 @@
 
 using namespace std;
 
-/**
-    Syntax Tree node class
-**/
-// class STNode {
-//     public:
-//         vector<STNode> children;
-
-//         void print() {
-//             for (STNode n: children)
-//                 n.print();
-//         }
-// };
-
 void parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
     stack<string> rules;
     string rule, former_rule, curr_inp;
     vector<string> next;
 
-    // syntax tree
-    // STNode root;
-    // STNode currSTNode = root;
-
-    // add $ as end of input in input stack
-    input.push(TokenNode(T_EOF, "$", -1, -1));
+    // add $ as end of input in input-stack
+    input.push(TokenNode(T_EOF, "$", 0, 0));
     reverse(tokens.begin(), tokens.end());
     for (TokenNode node: tokens) {
         // discard T_COMMENT tokens since they're not useful here
@@ -44,10 +26,11 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             input.push(node);
     }
 
-    // add $ as end of input in rules stack
+    // add $ as end of input in rules-stack
     rules.push("$");
     rules.push("OUTER_STMTS");
 
+    cout << "---" << endl;
     while (rules.size() > 0 && input.size() > 0) {
         former_rule = rule;
         rule = rules.top(); rules.pop();
@@ -57,19 +40,19 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
 
         // we reached end of input having matched everything successfully
         if (rule == "$" && curr_node.value == "$") {
-            cout << "Parsed successfully!" << endl;
+            cout << "Token stream parsed successfully!" << endl;
             break;
         }
 
         // pick next productions to expand to from current production/rule
         next = table[rule][curr_inp];
-        // there's nothing to expand to (might be a nonterminal, error or nullable production/rule)
+        // there's nothing to expand to (might be a non-terminal, error or nullable production/rule)
         if (next.size() == 0) {
-            if (rule == curr_inp) { // non terminal matches on both stacks
+            if (rule == curr_inp) { // non-terminal matches on both stacks
                 input.pop();
                 cout << "Matched " << curr_inp << " " << curr_node.value << endl;
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
-                cout << "Setting " << rule << " to epsilon" << endl;
+                cout << "Setting " << rule << " to the null string" << endl;
             } else { // error
                 cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
 
@@ -78,14 +61,14 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
                 cerr << "Error [line " << curr_node.line_number + 1 << "]: Expected "; 
                 
                 int n = first[rule].size();
-                if (n > 0) { // nonterminal on top
+                if (n > 0) { // non-terminal on rules-stack top
                     for (int i = 0; i < n; i++) {
                         if (i != n - 1)
                             cerr << "`" << tokenString[first[rule][i]] << "`, ";
                         else
                             cerr << "or `" << tokenString[first[rule][i]] << "`.";
                     }
-                } else // terminal on stack top
+                } else // terminal on rules-stack top
                     cerr << "`" << tokenString[tokenEnumStr[rule]] << "`.";
                 cerr << " Found `" << curr_node.value << "`." << endl;
 
@@ -103,6 +86,7 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             for (string s: next)
                 rules.push(s);
         }
+        cout << "---" << endl;
     }
 }
 

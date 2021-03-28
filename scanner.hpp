@@ -27,7 +27,7 @@ class TokenNode {
             this->token = token;
             this->value = value;
             this->line_number = line_number;
-            this->token_end = token_end == 0 ? 0 : token_end - 1;
+            this->token_end = token_end;
         }
 
         // print a string representation of the token
