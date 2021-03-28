@@ -283,7 +283,7 @@ pair<vector<TokenNode>, vector<string>> scan(const string &file_name) {
                         line_number++; // move count to next line
                         token_end = 0;
                     } else if (!(ch == ' ' || ch == '\t' || ch == '\r')) // ignore whitespace
-                        cerr << "Unexpected character " << ch << " on line " << line_number + 1 << endl;
+                        cerr << "Error [line " << line_number + 1 << "]: Unexpected character " << ch << endl;
                 }
         }
     }

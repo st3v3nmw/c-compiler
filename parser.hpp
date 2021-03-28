@@ -56,6 +56,9 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             } else { // error
                 cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
 
+                if (rule == "$")
+                    rule = "OUTER_STMTS";
+
                 cerr << "\n" << lines[curr_node.line_number] << endl;
                 cerr << string(curr_node.token_end - curr_node.value.size(), ' ') << string(curr_node.value.size(), '^') << endl;
                 cerr << "Error [line " << curr_node.line_number + 1 << "]: Expected "; 
