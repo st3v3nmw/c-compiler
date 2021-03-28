@@ -78,15 +78,20 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
 
                 cerr << "\n" << lines[curr_node.line_number] << endl;
                 cerr << string(curr_node.token_end - curr_node.value.size(), ' ') << string(curr_node.value.size(), '^') << endl;
-                cerr << "Error [line " << curr_node.line_number << "]: Expected "; 
+                cerr << "Error [line " << curr_node.line_number + 1 << "]: Expected "; 
+                
                 int n = first[rule].size();
-                for (int i = 0; i < n; i++) {
-                    if (i != n - 1)
-                        cerr << "`" << tokenString[first[rule][i]] << "`, ";
-                    else
-                        cerr << "or `" << tokenString[first[rule][i]] << "`.";
-                }
+                if (n > 0) { // nonterminal on top
+                    for (int i = 0; i < n; i++) {
+                        if (i != n - 1)
+                            cerr << "`" << tokenString[first[rule][i]] << "`, ";
+                        else
+                            cerr << "or `" << tokenString[first[rule][i]] << "`.";
+                    }
+                } else // terminal on stack top
+                    cerr << "`" << tokenString[tokenEnumStr[rule]] << "`.";
                 cerr << " Found `" << curr_node.value << "`." << endl;
+
                 exit(0);
             }
         } else {
