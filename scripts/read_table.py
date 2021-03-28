@@ -14,6 +14,15 @@ for prod in obj:
         for i in range(len(next_prods)):
             table[prod][key] = next_prods[i]['rhs']
 
+qq = []
+for prod in table:
+    o = {"name": prod}
+    for key in table[prod]:
+        o[key] = str(table[prod][key])[1:-1].replace('\'', '')
+    qq.append(o)
+json.dump(qq, open("proper.json", 'w'), indent=4)
+exit(0)
+
 r = "{"
 for prod in table:
     r += "{\"" + prod + "\",{"

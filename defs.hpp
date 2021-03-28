@@ -54,7 +54,7 @@ unordered_map<string, vector<vector<string>>> grammar = {{"OUTER_STMTS",{{"TSPEC
 // nullable productions in grammar
 unordered_set<string> nullable = { "OUTER_STMTS", "PL", "O_PL", "OPT_RETURN", "INNER_STMTS", "OPT_ASSIGN", "ELSE", "ARGS", "OPT_ARGS", "EXPR_P", "OPT_EXPR", "ADD_P", "MULT_P", "OPT_TSPEC", "FOR_P", "TERM_FNCALL" };
 
-// FOLLOW sets
+// FIRST sets
 unordered_map<string, vector<int>> first = {
         {"OUTER_STMTS", {T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
         {"OUTER_STMT",	{T_SEMICOLON, T_LPAREN, T_ASSIGN, T_PLUS_ASSIGN, T_MINUS_ASSIGN, T_STAR_ASSIGN, T_SLASH_ASSIGN, T_INT, T_FLOAT, T_CHAR, T_VOID, T_BOOL}},
