@@ -1,4 +1,4 @@
 int main() {
-    if
+    if (dfsdf)
     return 0;
 }
