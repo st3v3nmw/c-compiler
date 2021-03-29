@@ -34,3 +34,5 @@ The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.
 
 1. Scanner output
    ![Scanner output](assets/scanner.png)
+2. Parser output
+   ![Parser output](assets/parser.png)
