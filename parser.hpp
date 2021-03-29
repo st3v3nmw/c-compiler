@@ -22,9 +22,9 @@ void print_input_stack(stack<TokenNode> tempinput) {
     }
 }
 
-void print_rules_stack(stack<string> tempinput) {
+void print_rules_stack(stack<string> tempinput, string curr_rule) {
     if (!tempinput.empty()) {
-        cout << "Rules stack: ";
+        cout << "Rules stack: " << curr_rule << " ";
         while (!tempinput.empty()) {
             cout << tempinput.top() << " ";
             tempinput.pop();
@@ -78,7 +78,7 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
                 cout << "Setting " << rule << " to the null string" << endl;
             } else { // error
-                print_rules_stack(rules);
+                print_rules_stack(rules, rule);
 
                 if (rule == "$")
                     rule = "OUTER_STMTS";
@@ -102,7 +102,7 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
                 exit(0);
             }
         } else {
-            print_rules_stack(rules);
+            print_rules_stack(rules, rule);
             cout << "Applying production: " << rule << " -> ";
 
             for (string s: next)
