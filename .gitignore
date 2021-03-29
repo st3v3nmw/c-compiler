@@ -13,7 +13,8 @@ tests/generated
 .idea
 cmake-build-debug
 CMakeLists.txt
-parser-table-gen
+transition.json
+t_grammar.json
 
 # Prerequisites
 *.d
@@ -49,3 +50,4 @@ parser-table-gen
 *.app
 main
 scanner
+parser

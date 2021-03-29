@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SCANNER_H
 #define SCANNER_H
 
@@ -26,7 +27,7 @@ class TokenNode {
             this->token = token;
             this->value = value;
             this->line_number = line_number;
-            this->token_end = token_end;;
+            this->token_end = token_end;
         }
 
         // print a string representation of the token
@@ -72,7 +73,7 @@ string scanNumber() {
     return buffer;
 }
 
-pair<vector<TokenNode>, vector<string>> scanner(const string &file_name) {
+pair<vector<TokenNode>, vector<string>> scan(const string &file_name) {
     infile.open(file_name, ios::in);   // attempt to open the file
     if (infile.fail()) { // check for file status
         perror("file open failed");
@@ -248,13 +249,23 @@ pair<vector<TokenNode>, vector<string>> scanner(const string &file_name) {
                         tokens.push_back(TokenNode(T_FLOAT_LIT, buffer, line_number, token_end));
                 } else if (ch == '+' || ch == '-') {
                     if (isdigit(infile.peek())) { // match signed number (float or int)
-                        buffer = ch + scanNumber();
+                        buffer = scanNumber();
                         token_end += buffer.size() - 1;
                         size_t point = buffer.find_first_of(".");
-                        if (point == string::npos) // integer
-                            tokens.push_back(TokenNode(T_INT_LIT, buffer, line_number, token_end));
-                        else // float
-                            tokens.push_back(TokenNode(T_FLOAT_LIT, buffer, line_number, token_end));
+                        TokenNode last = tokens.back();
+                        if ((last.token >= T_PLUS && last.token <= T_SLASH) || (last.token >= T_ASSIGN && last.token <= T_SLASH_ASSIGN)) {
+                            if (point == string::npos) // integer
+                                tokens.push_back(TokenNode(T_INT_LIT, ch + buffer, line_number, token_end));
+                            else // float
+                                tokens.push_back(TokenNode(T_FLOAT_LIT, ch + buffer, line_number, token_end));
+                        } else {
+                            tokens.push_back(TokenNode(ch == '+' ? T_PLUS : T_MINUS, ch == '+' ? "+" : "-", line_number, token_end));
+                            if (point == string::npos) {
+                                tokens.push_back(TokenNode(T_INT_LIT, buffer, line_number, token_end));
+                            } else {
+                                tokens.push_back(TokenNode(T_INT_LIT, buffer, line_number, token_end));
+                            }
+                        }
                     } else if (infile.peek() == ch && (infile.peek() == '+' | infile.peek() == '-')) { // match unary ++ or --
                         tokens.push_back(TokenNode(infile.peek() == '+' ? T_UNARY_PLUS : T_UNARY_MINUS, infile.peek() == '+' ? "++" : "--", line_number, token_end));
                         infile >> noskipws >> ch; // consume last + or - and discard it
@@ -272,7 +283,7 @@ pair<vector<TokenNode>, vector<string>> scanner(const string &file_name) {
                         line_number++; // move count to next line
                         token_end = 0;
                     } else if (!(ch == ' ' || ch == '\t' || ch == '\r')) // ignore whitespace
-                        cerr << "Unexpected character " << ch << " on line " << line_number + 1 << endl;
+                        cerr << "Error [line " << line_number + 1 << "]: Unexpected character " << ch << endl;
                 }
         }
     }
