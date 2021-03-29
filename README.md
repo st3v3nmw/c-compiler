@@ -9,7 +9,7 @@ The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.
 ### Project Status
 
 1. - [x] Lexical Analyzer
-2. - [ ] Syntax Analyzer
+2. - [x] Syntax Analyzer
 3. - [ ] Semantic Analyzer
 4. - [ ] Intermediate Code Generator
 5. - [ ] Machine-Independent Code Optimizer
