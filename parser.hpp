@@ -13,6 +13,7 @@ using namespace std;
 
 void parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
+    stack<TokenNode> tempinput;
     stack<string> rules;
     string rule, former_rule, curr_inp;
     vector<string> next;
@@ -51,6 +52,15 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             if (rule == curr_inp) { // non-terminal matches on both stacks
                 input.pop();
                 cout << "Matched " << curr_inp << " " << curr_node.value << endl;
+                tempinput = input;
+                if(!tempinput.empty()){
+                    cout<<"Input: ";
+                    while (!tempinput.empty()){
+                        cout<<tempinput.top().value<<" ";
+                        tempinput.pop();
+                    }
+                    cout<<endl;
+                }
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
                 cout << "Setting " << rule << " to the null string" << endl;
             } else { // error
@@ -80,9 +90,20 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
         } else {
             cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
             cout << "Applying production: " << rule << " -> ";
+
             for (string s: next)
                 cout << s << " ";
             cout << endl;
+
+            tempinput = input;
+            if(!tempinput.empty()){
+                cout<<"Input: ";
+                while (!tempinput.empty()){
+                    cout<<tempinput.top().value<<" ";
+                    tempinput.pop();
+                }
+                cout<<endl;
+            }
 
             reverse(next.begin(), next.end());
             // add all the parts of the production we're expanding to
