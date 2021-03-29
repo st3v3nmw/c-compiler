@@ -11,6 +11,28 @@
 
 using namespace std;
 
+void print_input_stack(stack<TokenNode> tempinput) {
+    if (!tempinput.empty()) {
+        cout << "Input: ";
+        while (!tempinput.empty()) {
+            cout << tempinput.top().value << " ";
+            tempinput.pop();
+        }
+        cout << endl;
+    }
+}
+
+void print_rules_stack(stack<string> tempinput) {
+    if (!tempinput.empty()) {
+        cout << "Rules stack: ";
+        while (!tempinput.empty()) {
+            cout << tempinput.top() << " ";
+            tempinput.pop();
+        }
+        cout << endl;
+    }
+}
+
 void parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
     stack<TokenNode> tempinput;
@@ -52,19 +74,11 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
             if (rule == curr_inp) { // non-terminal matches on both stacks
                 input.pop();
                 cout << "Matched " << curr_inp << " " << curr_node.value << endl;
-                tempinput = input;
-                if(!tempinput.empty()){
-                    cout<<"Input: ";
-                    while (!tempinput.empty()){
-                        cout<<tempinput.top().value<<" ";
-                        tempinput.pop();
-                    }
-                    cout<<endl;
-                }
+                print_input_stack(input);
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
                 cout << "Setting " << rule << " to the null string" << endl;
             } else { // error
-                cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
+                print_rules_stack(rules);
 
                 if (rule == "$")
                     rule = "OUTER_STMTS";
@@ -88,22 +102,14 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
                 exit(0);
             }
         } else {
-            cout << "Stacks top: " << rule << ", " << curr_inp << " " << curr_node.value << endl;
+            print_rules_stack(rules);
             cout << "Applying production: " << rule << " -> ";
 
             for (string s: next)
                 cout << s << " ";
             cout << endl;
 
-            tempinput = input;
-            if(!tempinput.empty()){
-                cout<<"Input: ";
-                while (!tempinput.empty()){
-                    cout<<tempinput.top().value<<" ";
-                    tempinput.pop();
-                }
-                cout<<endl;
-            }
+            print_input_stack(input);
 
             reverse(next.begin(), next.end());
             // add all the parts of the production we're expanding to
