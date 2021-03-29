@@ -32,7 +32,6 @@ class TokenNode {
 
         // print a string representation of the token
         void print() {
-            cout << "(line " << line_number + 1 << " " << token_end - value.size() << ":" << token_end << ") ";
             if (token == T_STR_LIT)
                 cout << "string -> \"" << value << "\"";
             else if (token == T_CHAR_LIT)

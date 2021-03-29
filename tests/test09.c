@@ -1,5 +1,5 @@
 int main() {
-    char z
+    z
     if (true) {
     return 0;
 }
