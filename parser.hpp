@@ -6,39 +6,24 @@
 #include <vector>
 #include <stack>
 #include <algorithm>
+#include <memory>
 #include "scanner.hpp"
+#include "icg.hpp"
 #include "defs.hpp"
 
 using namespace std;
 
-void print_input_stack(stack<TokenNode> tempinput) {
-    if (!tempinput.empty()) {
-        cout << "Input: ";
-        while (!tempinput.empty()) {
-            cout << tempinput.top().value << " ";
-            tempinput.pop();
-        }
-        cout << endl;
-    }
-}
-
-void print_rules_stack(stack<string> tempinput, string curr_rule) {
-    if (!tempinput.empty()) {
-        cout << "Rules stack: " << curr_rule << " ";
-        while (!tempinput.empty()) {
-            cout << tempinput.top() << " ";
-            tempinput.pop();
-        }
-        cout << endl;
-    }
-}
-
-void parse(vector<TokenNode> tokens, vector<string> lines) {
+ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
     stack<TokenNode> tempinput;
     stack<string> rules;
     string rule, former_rule, curr_inp;
     vector<string> next;
+
+    stack<shared_ptr<ASTNode>> nodes;
+    shared_ptr<ASTNode> root(new ASTNode("OUTER_STMTS"));
+    nodes.push(root);
+    shared_ptr<ASTNode> local_root;
 
     // add $ as end of input in input-stack
     input.push(TokenNode(T_EOF, "$", 0, 0));
@@ -53,10 +38,12 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
     rules.push("$");
     rules.push("OUTER_STMTS");
 
-    cout << "---" << endl;
     while (rules.size() > 0 && input.size() > 0) {
         former_rule = rule;
         rule = rules.top(); rules.pop();
+        if (nodes.size() > 0) {
+            local_root = nodes.top(); nodes.pop();
+        }
         TokenNode curr_node = input.top();
         // get "formal" string representation of token
         curr_inp = formalTokenString[curr_node.token];
@@ -73,13 +60,11 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
         if (next.size() == 0) {
             if (rule == curr_inp) { // non-terminal matches on both stacks
                 input.pop();
-                cout << "Matched " << curr_inp << " " << curr_node.value << endl;
-                print_input_stack(input);
+                local_root->isTerminal = true;
+                local_root->token = curr_node;
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
-                cout << "Setting " << rule << " to the null string" << endl;
+                local_root->isNulled = true;
             } else { // error
-                print_rules_stack(rules, rule);
-
                 if (rule == "$")
                     rule = "OUTER_STMTS";
 
@@ -102,22 +87,21 @@ void parse(vector<TokenNode> tokens, vector<string> lines) {
                 exit(0);
             }
         } else {
-            print_rules_stack(rules, rule);
-            cout << "Applying production: " << rule << " -> ";
-
-            for (string s: next)
-                cout << s << " ";
-            cout << endl;
-
-            print_input_stack(input);
-
             reverse(next.begin(), next.end());
             // add all the parts of the production we're expanding to
-            for (string s: next)
+            for (string s: next) {
                 rules.push(s);
+                shared_ptr<ASTNode> child(new ASTNode(s));
+                local_root->children.insert(local_root->children.begin(), child);
+                nodes.push(child);
+            }
         }
-        cout << "---" << endl;
     }
+
+    cout << "\nParse Tree\n-----------" << endl;
+    root->print();
+
+    return *root;
 }
 
 #endif
