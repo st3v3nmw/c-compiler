@@ -110,6 +110,12 @@ class ASTNode {
                         text_segment += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
                         freeReg[reg] = true;
                     }
+                } else if (children[0]->rule == "T_IDENTIFIER") {
+                    string identifier = children[0]->token.value;
+                    int reg = children[1]->children[0]->children[1]->genIntermediateCode();
+                    text_segment += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
+                    freeReg[reg] = true;
+                    // handle unary, different types of assigns, & function calls
                 } else if (children[0]->rule == "T_PRINT") {
                     int reg = children[2]->genIntermediateCode();
                     text_segment += "\tli $v0, 1\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
@@ -118,22 +124,28 @@ class ASTNode {
                 } else if (children[0]->rule == "IF_STMT") {
                     int reg = children[0]->children[2]->genIntermediateCode(); // expression result
                     label += 1;
+                    int outer_label = label;
                     text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
                     freeReg[reg] = true;
                     children[0]->children[5]->genIntermediateCode();
-                    text_segment += "L" + to_string(label) + ":\n";
+                    label += 1;
+                    text_segment += "\tj L" + to_string(label) + "\n";
+                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    outer_label = label;
                     if (!children[0]->children[7]->isNulled) { // has an else block
                         shared_ptr<ASTNode> elseBlock = children[0]->children[7]->children[1];
                         if (elseBlock->children[0]->rule == "T_IF") {
                             int reg = elseBlock->children[2]->genIntermediateCode();
                             label += 1;
+                            int outer_label = label;
                             text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
                             freeReg[reg] = true;
                             elseBlock->children[5]->genIntermediateCode();
-                            text_segment += "L" + to_string(label) + ":\n";
+                            text_segment += "L" + to_string(outer_label) + ":\n";
                         } else
                             elseBlock->children[1]->genIntermediateCode();
                     }
+                    text_segment += "L" + to_string(outer_label) + ":\n";
                 } else if (children[0]->rule == "LOOP")
                     children[0]->genIntermediateCode();
             } else if (rule == "EXPR") {
@@ -189,7 +201,20 @@ class ASTNode {
                 }
                 return reg1;
             } else if (rule == "LOOP") {
+                if (children[0]->rule == "T_WHILE") { // while loop
+                    label += 1;
+                    text_segment += "L" + to_string(label) + ":\n";
+                    int reg = children[2]->genIntermediateCode();
+                    label += 1;
+                    int outer_label = label;
+                    text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
+                    children[5]->genIntermediateCode();
+                    text_segment += "\tj L" + to_string(outer_label - 1) + "\n";
+                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    freeReg[reg] = true;
+                } else { // for loop
 
+                }
             } else if (rule == "TERM") {
                 if (children[0]->rule == "CONST")
                     return children[0]->genIntermediateCode();

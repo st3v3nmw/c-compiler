@@ -14,4 +14,14 @@ int main() {
     } else if (z > 100) {
         printf(1232);
     }
+
+    int i = 0;
+    while (i <= 5) {
+        if (i >= 4) {
+            printf(i);
+        } else {
+            printf(2);
+        }
+        i = i + 1;
+    }
 }
