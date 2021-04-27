@@ -2,7 +2,7 @@
 
 A compiler for a subset of the C programming language (written in C++).
 
-See the grammar [here](specification.txt). (Or [this](assets/C.g4) for the ANTLR version).
+See the grammar [here](specification.txt).
 
 The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.google.com/spreadsheets/d/1F-eJwgGijExL0FjVoafF_rrcgbAnOpWvMyG7Qhu3K1k/edit?usp=sharing).
 
