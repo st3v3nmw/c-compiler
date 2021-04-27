@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
+shared_ptr<ASTNode> parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
     stack<TokenNode> tempinput;
     stack<string> rules;
@@ -42,17 +42,16 @@ ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
         former_rule = rule;
         rule = rules.top(); rules.pop();
         if (nodes.size() > 0) {
-            local_root = nodes.top(); nodes.pop();
+            local_root = nodes.top();
+            nodes.pop();
         }
         TokenNode curr_node = input.top();
         // get "formal" string representation of token
         curr_inp = formalTokenString[curr_node.token];
 
         // we reached end of input having matched everything successfully
-        if (rule == "$" && curr_node.value == "$") {
-            cout << "Token stream parsed successfully!" << endl;
+        if (rule == "$" && curr_node.value == "$")
             break;
-        }
 
         // pick next productions to expand to from current production/rule
         next = table[rule][curr_inp];
@@ -98,10 +97,9 @@ ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
         }
     }
 
-    cout << "\nParse Tree\n-----------" << endl;
     root->print();
 
-    return *root;
+    return root;
 }
 
 #endif

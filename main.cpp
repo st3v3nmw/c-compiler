@@ -25,7 +25,10 @@ int main(int argc, char** argv) {
     //     t.print();  // print the tokens
 
     cout << "\nParsing..." << endl;
-    ASTNode root = parse(tokens, lines);
+    shared_ptr<ASTNode> root = parse(tokens, lines);
+
+    cout << "\nGenerating intermediate code..." << endl;
+    genIntermediateCode(root);
 
     return 0;
 }
