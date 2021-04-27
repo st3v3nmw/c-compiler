@@ -21,6 +21,14 @@ enum {
     T_COMMENT // not really a token, but put here for "pedagogical" reasons, will be discarded in next phase of compilation
 };
 
+// AST tokens
+enum {
+    A_ADD, A_MINUS, A_MULTIPLY, A_DIVIDE,
+    A_ASSIGN,
+    A_FUNCTION, A_FNCALL,
+    A_IF, A_WHILE, A_BREAK, A_CONTINUE,
+};
+
 // string representation of token types above
 string tokenString[] = {
     "EOF",

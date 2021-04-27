@@ -23,6 +23,8 @@ class TokenNode {
         int token, line_number, token_end;
         string value;
 
+        TokenNode() {}
+
         TokenNode(int token, string value, int line_number, int token_end) {
             this->token = token;
             this->value = value;
