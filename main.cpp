@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     //     t.print();  // print the tokens
 
     cout << "\nParsing..." << endl;
-    parse(tokens, lines);
+    ASTNode root = parse(tokens, lines);
 
     return 0;
 }

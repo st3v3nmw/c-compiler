@@ -13,28 +13,6 @@
 
 using namespace std;
 
-void print_input_stack(stack<TokenNode> tempinput) {
-    if (!tempinput.empty()) {
-        cout << "Input: ";
-        while (!tempinput.empty()) {
-            cout << tempinput.top().value << " ";
-            tempinput.pop();
-        }
-        cout << endl;
-    }
-}
-
-void print_rules_stack(stack<string> tempinput, string curr_rule) {
-    if (!tempinput.empty()) {
-        cout << "Rules stack: " << curr_rule << " ";
-        while (!tempinput.empty()) {
-            cout << tempinput.top() << " ";
-            tempinput.pop();
-        }
-        cout << endl;
-    }
-}
-
 ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
     stack<TokenNode> input;
     stack<TokenNode> tempinput;
@@ -87,8 +65,6 @@ ASTNode parse(vector<TokenNode> tokens, vector<string> lines) {
             } else if (nullable.find(rule) != nullable.end()) { // nullable production/rule
                 local_root->isNulled = true;
             } else { // error
-                print_rules_stack(rules, rule);
-
                 if (rule == "$")
                     rule = "OUTER_STMTS";
 
