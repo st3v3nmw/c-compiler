@@ -24,4 +24,10 @@ int main() {
         }
         i = i + 1;
     }
+
+    for (foo = 0; foo < 15; foo = foo+1) {
+        printf(foo);
+    }
+
+    return 0;
 }

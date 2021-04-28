@@ -112,5 +112,25 @@ L7:
 	sw $t3, i
 	j L4
 L5:
+	li $t0, 0
+	sw $t0, foo
+L8:
+	lw $t0, foo
+	li $t1, 15
+	slt $t2, $t0, $t1
+	beq $t2, $0, L9
+	lw $t0, foo
+	li $v0, 1
+	move $a0, $t0
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
+	lw $t0, foo
+	li $t1, 1
+	add $t3, $t0, $t1
+	sw $t3, foo
+	j L8
+L9:
 	li $v0, 10
 	syscall
