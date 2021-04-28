@@ -26,8 +26,13 @@ int allocateRegister() {
 int label = 0;
 
 map<string, string> operations = { {"<", "slt"}, {"<=", "sle"}, {">", "sgt"}, {">=", "sge"}, {"==", "seq"}, {"!=", "sne"}, {"&&", "and"}, {"||", "or"}};
+map<string, string> symbolTable = {};
 
 inline void addToDataSegment(string type, string identifier) {
+    if (symbolTable.find(identifier) != symbolTable.end())
+        return;
+    
+    symbolTable.insert({identifier, type});
     data_segment += "\t" + identifier + ": ";
     if (type == "T_INT" || type == "T_BOOL")
         data_segment += ".word 0";
@@ -208,19 +213,54 @@ class ASTNode {
                     label += 1;
                     int outer_label = label;
                     text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
-                    children[5]->genIntermediateCode();
+                    
+                    // loop body
+                    if (!children[5]->isNulled)
+                        children[5]->genIntermediateCode();
+
                     text_segment += "\tj L" + to_string(outer_label - 1) + "\n";
                     text_segment += "L" + to_string(outer_label) + ":\n";
                     freeReg[reg] = true;
                 } else { // for loop
+                    // initialization bit
+                    if (!children[3]->isNulled) {
+                        if (!children[2]->isNulled) // type of iterator variable defined
+                            addToDataSegment(children[2]->children[0]->token.value, children[3]->children[0]->token.value);
+                        int reg = children[3]->children[1]->children[1]->genIntermediateCode();
+                        text_segment += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                        freeReg[reg] = true;
+                    }
 
+                    // comparison bit
+                    label += 1;
+                    text_segment += "L" + to_string(label) + ":\n";
+                    int reg = children[5]->genIntermediateCode();
+                    label += 1;
+                    int outer_label = label;
+                    text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
+
+                    // loop body
+                    if (!children[10]->isNulled)
+                        children[10]->genIntermediateCode();
+
+                    // increment/decrement bit
+                    if (!children[7]->isNulled) {
+                        int reg = children[7]->children[1]->children[1]->genIntermediateCode();
+                        text_segment += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                        freeReg[reg] = true;
+                    }
+
+                    // jump
+                    text_segment += "\tj L" + to_string(outer_label - 1) + "\n";
+                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    freeReg[reg] = true;
                 }
             } else if (rule == "TERM") {
                 if (children[0]->rule == "CONST")
                     return children[0]->genIntermediateCode();
                 else if (children[0]->rule == "T_LPAREN") // ( EXPR )
                     return children[1]->genIntermediateCode();
-                else { // function call
+                else { // function call or variable
                     return children[0]->genIntermediateCode();
                 }
             } else {
