@@ -1,4 +1,4 @@
-int q = 2;
+float q = 2.5 * 16;
 
 void print_sth() {
 
@@ -8,7 +8,7 @@ int main() {
     printf("Hello world!");
     float qq = 3 + 7.5;
     printf(qq);
-    printf(3 + 7);
+    printf(3 + 7 + q);
 
     printf(true);
     printf('a');
@@ -18,13 +18,13 @@ int main() {
     printf(x);
     int y = -15;
     printf(y);
-    int z = x + y - 4 * q;
+    int z = x + y - 4;
     printf(z);
 
-    if (z < 10) {
+    if (z < 10.0) {
         printf(x - y);
     } else if (z > 100) {
-        printf(1232);
+        printf(4/-20.0);
     }
 
     int i = 0;

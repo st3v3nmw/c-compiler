@@ -1,6 +1,6 @@
 .data
 	newline: .asciiz "\n"
-	q: .word 0
+	q: .float 0.0
 	tempLit1: .asciiz "Hello world!"
 	qq: .float 0.0
 	tempLit2: .asciiz "a"
@@ -11,17 +11,10 @@
 	i: .word 0
 
 .text
-	li $t0, 2
-	sw $t0, q
-
-.globl print_sth
-.ent print_sth
-print_sth:
-
-.end print_sth
 
 .globl main
 main:
+	jal compute_globals
 	la $t0, tempLit1
 	li $v0, 4
 	move $a0, $t0
@@ -45,8 +38,12 @@ main:
 	li $t0, 3
 	li $t1, 7
 	add $t2, $t0, $t1
-	li $v0, 1
-	move $a0, $t2
+	l.s $f0, q
+	mtc1 $t2, $f2
+	cvt.s.w $f2, $f2
+	add.s $f1, $f2, $f0
+	li $v0, 2
+	mov.s $f12, $f1
 	syscall
 	li $v0, 4
 	la $a0, newline
@@ -91,10 +88,8 @@ main:
 	lw $t1, y
 	add $t2, $t0, $t1
 	li $t0, 4
-	lw $t1, q
-	mul $t3, $t0, $t1
-	sub $t0, $t2, $t3
-	sw $t0, z
+	sub $t1, $t2, $t0
+	sw $t1, z
 	lw $t0, z
 	li $v0, 1
 	move $a0, $t0
@@ -103,7 +98,9 @@ main:
 	la $a0, newline
 	syscall
 	lw $t0, z
-	li $t1, 10
+	li.s $f1, 10.0
+	mtc1 $t0, $f0
+	cvt.s.w $f0, $f0
 	slt $t2, $t0, $t1
 	beq $t2, $0, L1
 	lw $t0, x
@@ -121,9 +118,13 @@ L1:
 	li $t1, 100
 	sgt $t2, $t0, $t1
 	beq $t2, $0, L3
-	li $t0, 1232
-	li $v0, 1
-	move $a0, $t0
+	li $t0, 4
+	li.s $f1, -20.0
+	mtc1 $t0, $f0
+	cvt.s.w $f0, $f0
+	div.s $f2, $f0, $f1
+	li $v0, 2
+	mov.s $f12, $f2
 	syscall
 	li $v0, 4
 	la $a0, newline
@@ -186,3 +187,22 @@ L8:
 L9:
 	li $v0, 10
 	syscall
+
+.globl compute_globals
+.ent compute_globals
+compute_globals:
+	li.s $f0, 2.5
+	li $t1, 16
+	mtc1 $t1, $f1
+	cvt.s.w $f1, $f1
+	mul.s $f2, $f0, $f1
+	s.s $f2, q
+	jr $ra
+.end compute_globals
+
+
+.globl print_sth
+.ent print_sth
+print_sth:
+
+.end print_sth

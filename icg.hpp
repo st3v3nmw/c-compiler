@@ -8,8 +8,9 @@
 #include "defs.hpp"
 
 string data_segment = ".data\n\tnewline: .asciiz \"\\n\"\n";
-string text_segment = ".text\n";
-string globals = "";
+string main_text_segment = ".text\n";
+string compute_globals = ".globl compute_globals\n.ent compute_globals\ncompute_globals:\n";
+string other = "";
 
 // keep track of free registers
 bool freeReg[8] = {true, true, true, true, true, true, true, true};
@@ -30,6 +31,13 @@ int label = 0, litCount = 0;
 map<string, string> operations = { {"<", "slt"}, {"<=", "sle"}, {">", "sgt"}, {">=", "sge"}, {"==", "seq"}, {"!=", "sne"}, {"&&", "and"}, {"||", "or"}};
 map<string, string> symbolTable = {};
 
+enum FnMode {
+    M_MAIN,
+    M_COMPUTE_GLOBALS,
+    M_OTHER
+};
+FnMode mode = M_COMPUTE_GLOBALS;
+
 inline void addToDataSegment(string type, string identifier) {
     if (symbolTable.find(identifier) != symbolTable.end())
         return;
@@ -45,11 +53,19 @@ inline void addToDataSegment(string type, string identifier) {
     data_segment += "\n";
 }
 
+string& select(FnMode mode) {
+    if (mode == M_MAIN)
+        return main_text_segment;
+    else if (mode == M_COMPUTE_GLOBALS)
+        return compute_globals;
+    return other;
+}
+
 inline void coerce(string& type1, int& reg1, string& type2, int& reg2) {
     if (type1 == "T_FLOAT" && type2 == "T_INT" || type2 == "T_FLOAT" && type1 == "T_INT") {
         string str_reg = type1 == "T_INT" ? to_string(reg1) : to_string(reg2);
-        text_segment += "\tmtc1 $t" + str_reg + ", $f" + str_reg + "\n";
-        text_segment += "\tcvt.s.w $f" + str_reg + ", $f" + str_reg + "\n";
+        select(mode) += "\tmtc1 $t" + str_reg + ", $f" + str_reg + "\n";
+        select(mode) += "\tcvt.s.w $f" + str_reg + ", $f" + str_reg + "\n";
 
         type1 = "T_FLOAT";
         type2 = "T_FLOAT";
@@ -93,23 +109,23 @@ class ASTNode {
                     litCount++;
                     string identifier = "tempLit" + to_string(litCount);
                     data_segment += "\t" + identifier + ": .asciiz \"" + token.value + "\"\n";
-                    text_segment += "\tla $t" + to_string(reg) + ", " + identifier + "\n";
+                    select(mode) += "\tla $t" + to_string(reg) + ", " + identifier + "\n";
                     type = "T_STR";
                 } else if (token.token == T_INT_LIT) {
-                    text_segment += "\tli $t" + to_string(reg) + ", " + token.value + "\n";
+                    select(mode) += "\tli $t" + to_string(reg) + ", " + token.value + "\n";
                     type = "T_INT";
                 } else if (token.token == T_FLOAT_LIT) {
-                    text_segment += "\tli.s $f" + to_string(reg) + ", " + token.value + "\n";
+                    select(mode) += "\tli.s $f" + to_string(reg) + ", " + token.value + "\n";
                     type = "T_FLOAT";
                 } else if (token.token == T_BOOL_LIT) {
-                    text_segment += "\tli $t" + to_string(reg) + ", " + (token.value == "true" ? "1" : "0") + "\n";
+                    select(mode) += "\tli $t" + to_string(reg) + ", " + (token.value == "true" ? "1" : "0") + "\n";
                     type = "T_INT";
                 } else if (token.token == T_IDENTIFIER) {
                     type = symbolTable[token.value];
                     if (type == "T_FLOAT")
-                        text_segment += "\tl.s $f" + to_string(reg) + ", " + token.value + "\n";
+                        select(mode) += "\tl.s $f" + to_string(reg) + ", " + token.value + "\n";
                     else
-                        text_segment += "\tlw $t" + to_string(reg) + ", " + token.value + "\n";
+                        select(mode) += "\tlw $t" + to_string(reg) + ", " + token.value + "\n";
                 }
 
                 return {reg, type};
@@ -119,25 +135,29 @@ class ASTNode {
                 string type = children[0]->children[0]->rule;
                 string identifier = children[1]->token.value;
                 if (children[2]->children[0]->rule == "FN") { // function
-                    text_segment += "\n.globl " + identifier + "\n";
+                    mode = identifier == "main" ? M_MAIN : M_OTHER;
+                    select(mode) += "\n.globl " + identifier + "\n";
                     if (identifier != "main")
-                        text_segment += ".ent " + identifier + "\n";
-                    text_segment += identifier + ":\n";
+                        select(mode) += ".ent " + identifier + "\n";
+                    select(mode) += identifier + ":\n";
+                    if (identifier == "main")
+                        select(mode) += "\tjal compute_globals\n";
                     if (!children[2]->children[0]->children[4]->isNulled)
                         children[2]->children[0]->children[4]->genIntermediateCode();
                     if (identifier != "main") {
-                        text_segment += "\n.end " + identifier + "\n";
+                        select(mode) += "\n.end " + identifier + "\n";
                     }
                     // handle opt_return
                 } else { // global variable declaration or assignment
+                    mode = M_COMPUTE_GLOBALS;
                     addToDataSegment(type, identifier);
                     if (!children[2]->children[0]->isNulled) {
                         int reg; string type;
                         tie(reg, type) = children[2]->children[0]->children[1]->genIntermediateCode();
                         if (type == "T_FLOAT")
-                            text_segment += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
+                            select(mode) += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
                         else
-                            text_segment += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
+                            select(mode) += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
                         freeReg[reg] = true;
                     }
                 }
@@ -157,9 +177,9 @@ class ASTNode {
                         int reg; string type;
                         tie(reg, type) = children[0]->children[2]->children[1]->genIntermediateCode();
                         if (type == "T_FLOAT")
-                            text_segment += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
+                            select(mode) += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
                         else
-                            text_segment += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
+                            select(mode) += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
                         freeReg[reg] = true;
                     }
                 } else if (children[0]->rule == "T_IDENTIFIER") {
@@ -167,33 +187,33 @@ class ASTNode {
                     int reg; string type;
                     tie(reg, type) = children[1]->children[0]->children[1]->genIntermediateCode();
                     if (type == "T_FLOAT")
-                        text_segment += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
+                        select(mode) += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
                     else
-                        text_segment += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
+                        select(mode) += "\tsw $t" + to_string(reg) + ", " + identifier + "\n";
                     freeReg[reg] = true;
                     // handle unary, different types of assigns, & function calls
                 } else if (children[0]->rule == "T_PRINT") {
                     int reg; string type;
                     tie(reg, type) = children[2]->genIntermediateCode();
                     if (type == "T_INT")
-                        text_segment += "\tli $v0, 1\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
+                        select(mode) += "\tli $v0, 1\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
                     else if (type == "T_FLOAT")
-                        text_segment += "\tli $v0, 2\n\tmov.s $f12, $f" + to_string(reg) + "\n\tsyscall\n";
+                        select(mode) += "\tli $v0, 2\n\tmov.s $f12, $f" + to_string(reg) + "\n\tsyscall\n";
                     else
-                        text_segment += "\tli $v0, 4\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
-                    text_segment += "\tli $v0, 4\n\tla $a0, newline\n\tsyscall\n"; // print newline
+                        select(mode) += "\tli $v0, 4\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
+                    select(mode) += "\tli $v0, 4\n\tla $a0, newline\n\tsyscall\n"; // print newline
                     freeReg[reg] = true;
                 } else if (children[0]->rule == "IF_STMT") {
                     int reg; string type;
                     tie(reg, type) = children[0]->children[2]->genIntermediateCode(); // expression result
                     label += 1;
                     int outer_label = label;
-                    text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
+                    select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
                     freeReg[reg] = true;
                     children[0]->children[5]->genIntermediateCode();
                     label += 1;
-                    text_segment += "\tj L" + to_string(label) + "\n";
-                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    select(mode) += "\tj L" + to_string(label) + "\n";
+                    select(mode) += "L" + to_string(outer_label) + ":\n";
                     outer_label = label;
                     if (!children[0]->children[7]->isNulled) { // has an else block
                         shared_ptr<ASTNode> elseBlock = children[0]->children[7]->children[1];
@@ -202,14 +222,14 @@ class ASTNode {
                             tie(reg, type) = elseBlock->children[2]->genIntermediateCode();
                             label += 1;
                             int outer_label = label;
-                            text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
+                            select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(label) + "\n";
                             freeReg[reg] = true;
                             elseBlock->children[5]->genIntermediateCode();
-                            text_segment += "L" + to_string(outer_label) + ":\n";
+                            select(mode) += "L" + to_string(outer_label) + ":\n";
                         } else
                             elseBlock->children[1]->genIntermediateCode();
                     }
-                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    select(mode) += "L" + to_string(outer_label) + ":\n";
                 } else if (children[0]->rule == "LOOP")
                     children[0]->genIntermediateCode();
             } else if (rule == "EXPR") {
@@ -223,7 +243,7 @@ class ASTNode {
                         coerce(type1, reg1, type2, reg2);
                         int reg3 = allocateRegister();
                         string op = children[1]->children[0]->children[0]->token.value;
-                        text_segment += "\t" + operations[op] + " $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
+                        select(mode) += "\t" + operations[op] + " $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
                         freeReg[reg1] = true;
                         freeReg[reg2] = true;
                         reg1 = reg3;
@@ -234,9 +254,9 @@ class ASTNode {
                     tie(reg1, type1) = children[1]->genIntermediateCode();
                     int reg2 = allocateRegister();
                     if (type1 == "T_FLOAT")
-                        text_segment += "neg.s $f" + to_string(reg2) + ", $f" + to_string(reg1) + "\n";
+                        select(mode) += "neg.s $f" + to_string(reg2) + ", $f" + to_string(reg1) + "\n";
                     else
-                        text_segment += "neg $t" + to_string(reg2) + ", $t" + to_string(reg1) + "\n";
+                        select(mode) += "neg $t" + to_string(reg2) + ", $t" + to_string(reg1) + "\n";
                     freeReg[reg1] = true;
                     return {reg2, type1};
                 }
@@ -251,14 +271,14 @@ class ASTNode {
                     int reg3 = allocateRegister();
                     if (type1 == "T_FLOAT") {
                         if (addp->children[0]->children[0]->rule == "T_PLUS") // addition
-                            text_segment += "\tadd.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
+                            select(mode) += "\tadd.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
                         else // subtraction
-                            text_segment += "\tsub.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
+                            select(mode) += "\tsub.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
                     } else {
                         if (addp->children[0]->children[0]->rule == "T_PLUS") // addition
-                            text_segment += "\tadd $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
+                            select(mode) += "\tadd $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
                         else // subtraction
-                            text_segment += "\tsub $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
+                            select(mode) += "\tsub $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
                     }
 
                     addp = addp->children[2];
@@ -278,14 +298,14 @@ class ASTNode {
                     int reg3 = allocateRegister();
                     if (type1 == "T_FLOAT") {
                         if (multp->children[0]->children[0]->rule == "T_STAR") // multiplication
-                            text_segment += "\tmul.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
+                            select(mode) += "\tmul.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
                         else // division
-                            text_segment += "\tdiv.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
+                            select(mode) += "\tdiv.s $f" + to_string(reg3) + ", $f" + to_string(reg1) + ", $f" + to_string(reg2) + "\n";
                     } else {
                         if (multp->children[0]->children[0]->rule == "T_STAR") // multiplication
-                            text_segment += "\tmul $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
+                            select(mode) += "\tmul $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
                         else // division
-                            text_segment += "\tdiv $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
+                            select(mode) += "\tdiv $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
                     }
                     multp = multp->children[2];
                     freeReg[reg1] = true;
@@ -296,19 +316,19 @@ class ASTNode {
             } else if (rule == "LOOP") {
                 if (children[0]->rule == "T_WHILE") { // while loop
                     label += 1;
-                    text_segment += "L" + to_string(label) + ":\n";
+                    select(mode) += "L" + to_string(label) + ":\n";
                     int reg; string type;
                     tie(reg, type) = children[2]->genIntermediateCode();
                     label += 1;
                     int outer_label = label;
-                    text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
+                    select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
                     
                     // loop body
                     if (!children[5]->isNulled)
                         children[5]->genIntermediateCode();
 
-                    text_segment += "\tj L" + to_string(outer_label - 1) + "\n";
-                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    select(mode) += "\tj L" + to_string(outer_label - 1) + "\n";
+                    select(mode) += "L" + to_string(outer_label) + ":\n";
                     freeReg[reg] = true;
                 } else { // for loop
                     // initialization bit
@@ -318,20 +338,20 @@ class ASTNode {
                         int reg; string type;
                         tie(reg, type) = children[3]->children[1]->children[1]->genIntermediateCode();
                         if (type == "T_FLOAT")
-                            text_segment += "\ts.s $f" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                            select(mode) += "\ts.s $f" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
                         else
-                            text_segment += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                            select(mode) += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
                         freeReg[reg] = true;
                     }
 
                     // comparison bit
                     label += 1;
-                    text_segment += "L" + to_string(label) + ":\n";
+                    select(mode) += "L" + to_string(label) + ":\n";
                     int reg; string type;
                     tie(reg, type) = children[5]->genIntermediateCode();
                     label += 1;
                     int outer_label = label;
-                    text_segment += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
+                    select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" + to_string(outer_label) + "\n";
 
                     // loop body
                     if (!children[10]->isNulled)
@@ -342,15 +362,15 @@ class ASTNode {
                         int reg; string type;
                         tie(reg, type) = children[7]->children[1]->children[1]->genIntermediateCode();
                         if (type == "T_FLOAT")
-                            text_segment += "\ts.s $f" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                            select(mode) += "\ts.s $f" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
                         else
-                            text_segment += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
+                            select(mode) += "\tsw $t" + to_string(reg) + ", " + children[3]->children[0]->token.value + "\n";
                         freeReg[reg] = true;
                     }
 
                     // jump
-                    text_segment += "\tj L" + to_string(outer_label - 1) + "\n";
-                    text_segment += "L" + to_string(outer_label) + ":\n";
+                    select(mode) += "\tj L" + to_string(outer_label - 1) + "\n";
+                    select(mode) += "L" + to_string(outer_label) + ":\n";
                     freeReg[reg] = true;
                 }
             } else if (rule == "TERM") {
@@ -372,11 +392,11 @@ class ASTNode {
 
 void genIntermediateCode(shared_ptr<ASTNode> root) {
     root->genIntermediateCode();
-    text_segment += "\tli $v0, 10\n\tsyscall\n";
+    main_text_segment += "\tli $v0, 10\n\tsyscall\n";
 
     ofstream file("out.asm");
     if (file.is_open()) {
-        file << data_segment << "\n" << text_segment;
+        file << data_segment << "\n" << main_text_segment << "\n" << compute_globals << "\tjr $ra\n.end compute_globals\n\n" + other;
         file.close();
     }
 }
