@@ -26,8 +26,8 @@ The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.
 2. Launch the project by running the `main.cpp` file. It would be easier to run the project using JetBrain's CLION IDE.
 3. The test files are found in the `tests` folder.
    - To switch from one testcase to another, you can:
-     1. Use the Makefile i.e. `make o f=tests/submitted.c`
-     2. or, when directly running the executable, `./main tests/submitted.c`
+     1. Use the Makefile i.e. `make o f=tests/submitted.c && spim -file out.asm`
+     2. or, when directly running the executable, `./main tests/submitted.c && spim -file out.asm`
      3. or, change the name in the test file specifier on the `main.cpp` file
 
 ### Screenshots
