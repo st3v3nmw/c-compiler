@@ -142,9 +142,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       mode = M_COMPUTE_GLOBALS;
       addToDataSegment(type, identifier);
       if (!children[2]->children[0]->isNulled) {
-        int reg;
-        string type;
-        tie(reg, type) =
+        auto [reg, type] =
             children[2]->children[0]->children[1]->genIntermediateCode();
         if (type == "T_FLOAT")
           select(mode) +=
@@ -167,9 +165,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       string identifier = children[0]->children[1]->token.value;
       addToDataSegment(type, identifier);
       if (!children[0]->children[2]->isNulled) {
-        int reg;
-        string type;
-        tie(reg, type) =
+        auto [reg, type] =
             children[0]->children[2]->children[1]->genIntermediateCode();
         if (type == "T_FLOAT")
           select(mode) +=
@@ -180,9 +176,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       }
     } else if (children[0]->rule == "T_IDENTIFIER") {
       string identifier = children[0]->token.value;
-      int reg;
-      string type;
-      tie(reg, type) =
+      auto [reg, type] =
           children[1]->children[0]->children[1]->genIntermediateCode();
       if (type == "T_FLOAT")
         select(mode) += "\ts.s $f" + to_string(reg) + ", " + identifier + "\n";
@@ -191,9 +185,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       freeReg[reg] = true;
       // handle unary, different types of assigns, & function calls
     } else if (children[0]->rule == "T_PRINT") {
-      int reg;
-      string type;
-      tie(reg, type) = children[2]->genIntermediateCode();
+      auto [reg, type] = children[2]->genIntermediateCode();
       if (type == "T_INT")
         select(mode) +=
             "\tli $v0, 1\n\tmove $a0, $t" + to_string(reg) + "\n\tsyscall\n";
@@ -207,9 +199,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
           "\tli $v0, 4\n\tla $a0, newline\n\tsyscall\n"; // print newline
       freeReg[reg] = true;
     } else if (children[0]->rule == "IF_STMT") {
-      int reg;
-      string type;
-      tie(reg, type) =
+      auto [reg, type] =
           children[0]->children[2]->genIntermediateCode(); // expression result
       label += 1;
       int outer_label = label;
@@ -224,9 +214,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       if (!children[0]->children[7]->isNulled) { // has an else block
         shared_ptr<ASTNode> elseBlock = children[0]->children[7]->children[1];
         if (elseBlock->children[0]->rule == "T_IF") {
-          int reg;
-          string type;
-          tie(reg, type) = elseBlock->children[2]->genIntermediateCode();
+          auto [reg, type] = elseBlock->children[2]->genIntermediateCode();
           label += 1;
           int outer_label = label;
           select(mode) +=
@@ -242,13 +230,9 @@ pair<int, string> ASTNode::genIntermediateCode() {
       children[0]->genIntermediateCode();
   } else if (rule == "EXPR") {
     if (children[0]->rule == "ADD") {
-      int reg1;
-      string type1;
-      tie(reg1, type1) = children[0]->genIntermediateCode();
+      auto [reg1, type1] = children[0]->genIntermediateCode();
       if (!children[1]->isNulled) {
-        int reg2;
-        string type2;
-        tie(reg2, type2) = children[1]->children[1]->genIntermediateCode();
+        auto [reg2, type2] = children[1]->children[1]->genIntermediateCode();
 
         coerce(type1, reg1, type2, reg2);
         int reg3 = allocateRegister();
@@ -262,9 +246,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       }
       return {reg1, type1};
     } else { // unary negation
-      int reg1;
-      string type1;
-      tie(reg1, type1) = children[1]->genIntermediateCode();
+      auto [reg1, type1] = children[1]->genIntermediateCode();
       int reg2 = allocateRegister();
       if (type1 == "T_FLOAT")
         select(mode) +=
@@ -276,14 +258,10 @@ pair<int, string> ASTNode::genIntermediateCode() {
       return {reg2, type1};
     }
   } else if (rule == "ADD") {
-    int reg1;
-    string type1;
-    tie(reg1, type1) = children[0]->genIntermediateCode();
+    auto [reg1, type1] = children[0]->genIntermediateCode();
     shared_ptr<ASTNode> addp = children[1];
     while (!addp->isNulled) {
-      int reg2;
-      string type2;
-      tie(reg2, type2) = addp->children[1]->genIntermediateCode();
+      auto [reg2, type2] = addp->children[1]->genIntermediateCode();
       coerce(type1, reg1, type2, reg2);
       int reg3 = allocateRegister();
       if (type1 == "T_FLOAT") {
@@ -309,14 +287,10 @@ pair<int, string> ASTNode::genIntermediateCode() {
     }
     return {reg1, type1};
   } else if (rule == "MULT") {
-    int reg1;
-    string type1;
-    tie(reg1, type1) = children[0]->genIntermediateCode();
+    auto [reg1, type1] = children[0]->genIntermediateCode();
     shared_ptr<ASTNode> multp = children[1];
     while (!multp->isNulled) {
-      int reg2;
-      string type2;
-      tie(reg2, type2) = multp->children[1]->genIntermediateCode();
+      auto [reg2, type2] = multp->children[1]->genIntermediateCode();
       coerce(type1, reg1, type2, reg2);
       int reg3 = allocateRegister();
       if (type1 == "T_FLOAT") {
@@ -344,9 +318,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
     if (children[0]->rule == "T_WHILE") { // while loop
       label += 1;
       select(mode) += "L" + to_string(label) + ":\n";
-      int reg;
-      string type;
-      tie(reg, type) = children[2]->genIntermediateCode();
+      auto [reg, type] = children[2]->genIntermediateCode();
       label += 1;
       int outer_label = label;
       select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" +
@@ -365,9 +337,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
         if (!children[2]->isNulled) // type of iterator variable defined
           addToDataSegment(children[2]->children[0]->token.value,
                            children[3]->children[0]->token.value);
-        int reg;
-        string type;
-        tie(reg, type) =
+        auto [reg, type] =
             children[3]->children[1]->children[1]->genIntermediateCode();
         if (type == "T_FLOAT")
           select(mode) += "\ts.s $f" + to_string(reg) + ", " +
@@ -381,9 +351,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
       // comparison bit
       label += 1;
       select(mode) += "L" + to_string(label) + ":\n";
-      int reg;
-      string type;
-      tie(reg, type) = children[5]->genIntermediateCode();
+      auto [reg, type] = children[5]->genIntermediateCode();
       label += 1;
       int outer_label = label;
       select(mode) += "\tbeq $t" + to_string(reg) + ", $0, L" +
@@ -395,9 +363,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
 
       // increment/decrement bit
       if (!children[7]->isNulled) {
-        int reg;
-        string type;
-        tie(reg, type) =
+        auto [reg, type] =
             children[7]->children[1]->children[1]->genIntermediateCode();
         if (type == "T_FLOAT")
           select(mode) += "\ts.s $f" + to_string(reg) + ", " +

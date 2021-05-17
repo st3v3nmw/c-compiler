@@ -1,6 +1,5 @@
 #include "decl.hpp"
 #include "defs.hpp"
-#include <tuple>
 #include <iostream>
 
 using namespace std;
@@ -18,11 +17,8 @@ int main(int argc, char **argv) {
       2) // file called using a command line argument i.e. ./main tests/test08.c
     test_file_path = argv[1];
 
-  vector<TokenNode> tokens;
-  vector<string> lines;
-
   cout << "Scanning..." << endl;
-  tie(tokens, lines) = scan(test_file_path); // scan for all tokens
+  auto [tokens, lines] = scan(test_file_path); // scan for all tokens
   // for (auto t : tokens)
   //     t.print();  // print the tokens
 
