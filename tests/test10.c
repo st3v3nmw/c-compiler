@@ -6,7 +6,7 @@ void print_sth() {
 
 int main() {
     printf("Hello world!");
-    float qq = 3.0 + 7.5;
+    float qq = 3 + 7.5;
     printf(qq);
     printf(3 + 7);
 

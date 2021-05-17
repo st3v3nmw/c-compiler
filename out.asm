@@ -29,8 +29,10 @@ main:
 	li $v0, 4
 	la $a0, newline
 	syscall
-	li.s $f0, 3.0
+	li $t0, 3
 	li.s $f1, 7.5
+	mtc1 $t0, $f0
+	cvt.s.w $f0, $f0
 	add.s $f2, $f0, $f1
 	s.s $f2, qq
 	l.s $f0, qq

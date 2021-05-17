@@ -11,7 +11,7 @@ The predictive table, FIRST, and, FOLLOW sets are available [here](https://docs.
 1. - [x] Lexical Analyzer
 2. - [x] Syntax Analyzer
 3. - [ ] Semantic Analyzer
-4. - [ ] Intermediate Code Generator (SPIM)
+4. - [x] Intermediate Code Generator (SPIM, ish-done)
 5. - [ ] Machine-Independent Code Optimizer
 6. - [ ] Code Generator
 7. - [ ] Machine-Dependent Code Optimizer

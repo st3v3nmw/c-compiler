@@ -34,7 +34,7 @@ inline void addToDataSegment(string type, string identifier) {
     if (symbolTable.find(identifier) != symbolTable.end())
         return;
     
-    symbolTable.insert({identifier, type});
+    symbolTable.insert({identifier, (type == "T_BOOL" ? "T_INT" : type)});
     data_segment += "\t" + identifier + ": ";
     if (type == "T_INT" || type == "T_BOOL")
         data_segment += ".word 0";
@@ -45,10 +45,17 @@ inline void addToDataSegment(string type, string identifier) {
     data_segment += "\n";
 }
 
-inline string coerce(string type1, string type2) {
-    if (type1 == "T_FLOAT" || type2 == "T_FLOAT")
-        return "T_FLOAT";
-    return "T_INT";
+inline void coerce(string& type1, int& reg1, string& type2, int& reg2) {
+    if (type1 != type2) {
+        if (type1 == "T_FLOAT" && type2 == "T_INT" || type2 == "T_FLOAT" && type1 == "T_INT") {
+            string str_reg = type1 == "T_INT" ? to_string(reg1) : to_string(reg2);
+            text_segment += "\tmtc1 $t" + str_reg + ", $f" + str_reg + "\n";
+            text_segment += "\tcvt.s.w $f" + str_reg + ", $f" + str_reg + "\n";
+
+            type1 = "T_FLOAT";
+            type2 = "T_FLOAT";
+        }
+    }
 }
 
 class ASTNode {
@@ -214,7 +221,8 @@ class ASTNode {
                     if (!children[1]->isNulled) {
                         int reg2; string type2;
                         tie(reg2, type2) = children[1]->children[1]->genIntermediateCode();
-                        type1 = coerce(type1, type2);
+
+                        coerce(type1, reg1, type2, reg2);
                         int reg3 = allocateRegister();
                         string op = children[1]->children[0]->children[0]->token.value;
                         text_segment += "\t" + operations[op] + " $t" + to_string(reg3) + ", $t" + to_string(reg1) + ", $t" + to_string(reg2) + "\n";
@@ -241,7 +249,7 @@ class ASTNode {
                 while (!addp->isNulled) {
                     int reg2; string type2;
                     tie(reg2, type2) = addp->children[1]->genIntermediateCode();
-                    type1 = coerce(type1, type2);
+                    coerce(type1, reg1, type2, reg2);
                     int reg3 = allocateRegister();
                     if (type1 == "T_FLOAT") {
                         if (addp->children[0]->children[0]->rule == "T_PLUS") // addition
@@ -268,7 +276,7 @@ class ASTNode {
                 while (!multp->isNulled) {
                     int reg2; string type2;
                     tie(reg2, type2) = multp->children[1]->genIntermediateCode();
-                    type1 = coerce(type1, type2);
+                    coerce(type1, reg1, type2, reg2);
                     int reg3 = allocateRegister();
                     if (type1 == "T_FLOAT") {
                         if (multp->children[0]->children[0]->rule == "T_STAR") // multiplication
@@ -360,7 +368,7 @@ class ASTNode {
             }
 
             // the stuff of nightmares!
-            return { -1, "NONE" };
+            return {-1, "NONE"};
         }
 };
 
