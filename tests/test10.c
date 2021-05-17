@@ -1,6 +1,18 @@
 int q = 2;
 
+void print_sth() {
+
+}
+
 int main() {
+    printf("Hello world!");
+    float qq = 3.0 + 7.5;
+    printf(qq);
+    printf(3 + 7);
+
+    printf(true);
+    printf('a');
+
     int foo;
     int x = 14 * 48 / 4;
     printf(x);

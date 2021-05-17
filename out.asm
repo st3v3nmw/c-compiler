@@ -1,6 +1,9 @@
 .data
 	newline: .asciiz "\n"
 	q: .word 0
+	tempLit1: .asciiz "Hello world!"
+	qq: .float 0.0
+	tempLit2: .asciiz "a"
 	foo: .word 0
 	x: .word 0
 	y: .word 0
@@ -11,8 +14,55 @@
 	li $t0, 2
 	sw $t0, q
 
+.globl print_sth
+.ent print_sth
+print_sth:
+
+.end print_sth
+
 .globl main
 main:
+	la $t0, tempLit1
+	li $v0, 4
+	move $a0, $t0
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
+	li.s $f0, 3.0
+	li.s $f1, 7.5
+	add.s $f2, $f0, $f1
+	s.s $f2, qq
+	l.s $f0, qq
+	li $v0, 2
+	mov.s $f12, $f0
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
+	li $t0, 3
+	li $t1, 7
+	add $t2, $t0, $t1
+	li $v0, 1
+	move $a0, $t2
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
+	li $t0, 1
+	li $v0, 1
+	move $a0, $t0
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
+	la $t0, tempLit2
+	li $v0, 4
+	move $a0, $t0
+	syscall
+	li $v0, 4
+	la $a0, newline
+	syscall
 	li $t0, 14
 	li $t1, 48
 	mul $t2, $t0, $t1
