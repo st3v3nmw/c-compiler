@@ -46,15 +46,13 @@ inline void addToDataSegment(string type, string identifier) {
 }
 
 inline void coerce(string& type1, int& reg1, string& type2, int& reg2) {
-    if (type1 != type2) {
-        if (type1 == "T_FLOAT" && type2 == "T_INT" || type2 == "T_FLOAT" && type1 == "T_INT") {
-            string str_reg = type1 == "T_INT" ? to_string(reg1) : to_string(reg2);
-            text_segment += "\tmtc1 $t" + str_reg + ", $f" + str_reg + "\n";
-            text_segment += "\tcvt.s.w $f" + str_reg + ", $f" + str_reg + "\n";
+    if (type1 == "T_FLOAT" && type2 == "T_INT" || type2 == "T_FLOAT" && type1 == "T_INT") {
+        string str_reg = type1 == "T_INT" ? to_string(reg1) : to_string(reg2);
+        text_segment += "\tmtc1 $t" + str_reg + ", $f" + str_reg + "\n";
+        text_segment += "\tcvt.s.w $f" + str_reg + ", $f" + str_reg + "\n";
 
-            type1 = "T_FLOAT";
-            type2 = "T_FLOAT";
-        }
+        type1 = "T_FLOAT";
+        type2 = "T_FLOAT";
     }
 }
 
