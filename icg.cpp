@@ -49,7 +49,7 @@ inline void addToDataSegment(string type, string identifier) {
   data_segment += "\n";
 }
 
-inline string &select(FnMode mode) {
+inline string& select(FnMode mode) {
   if (mode == M_MAIN)
     return main_text_segment;
   else if (mode == M_COMPUTE_GLOBALS)
