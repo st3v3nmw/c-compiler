@@ -135,6 +135,7 @@ public:
   pair<int, string> genIntermediateCode();
 };
 
-shared_ptr<ASTNode> parse(vector<TokenNode> tokens, vector<string> lines);
+extern unordered_map<string, string> symbolTable;
+enum FnMode { M_MAIN, M_COMPUTE_GLOBALS, M_OTHER };
 
 #endif

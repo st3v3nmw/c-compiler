@@ -32,7 +32,6 @@ unordered_map<string, string> operations = {
     {"==", "seq"}, {"!=", "sne"}, {"&&", "and"}, {"||", "or"}};
 unordered_map<string, string> symbolTable = {};
 
-enum FnMode { M_MAIN, M_COMPUTE_GLOBALS, M_OTHER };
 FnMode mode = M_COMPUTE_GLOBALS;
 
 inline void addToDataSegment(string type, string identifier) {
