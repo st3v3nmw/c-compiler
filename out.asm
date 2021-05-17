@@ -1,9 +1,9 @@
 .data
 	newline: .asciiz "\n"
 	q: .float 0.0
-	tempLit1: .asciiz "Hello world!"
+	UFJ8Pcjn1844XajR1: .asciiz "Hello world!"
 	qq: .float 0.0
-	tempLit2: .asciiz "a"
+	UFJ8Pcjn1844XajR2: .asciiz "a"
 	foo: .word 0
 	x: .word 0
 	y: .word 0
@@ -14,8 +14,8 @@
 
 .globl main
 main:
-	jal compute_globals
-	la $t0, tempLit1
+	jal U3quItLgAXaPHLuf
+	la $t0, UFJ8Pcjn1844XajR1
 	li $v0, 4
 	move $a0, $t0
 	syscall
@@ -55,7 +55,7 @@ main:
 	li $v0, 4
 	la $a0, newline
 	syscall
-	la $t0, tempLit2
+	la $t0, UFJ8Pcjn1844XajR2
 	li $v0, 4
 	move $a0, $t0
 	syscall
@@ -188,9 +188,9 @@ L9:
 	li $v0, 10
 	syscall
 
-.globl compute_globals
-.ent compute_globals
-compute_globals:
+.globl U3quItLgAXaPHLuf
+.ent U3quItLgAXaPHLuf
+U3quItLgAXaPHLuf:
 	li.s $f0, 2.5
 	li $t1, 16
 	mtc1 $t1, $f1
@@ -198,8 +198,7 @@ compute_globals:
 	mul.s $f2, $f0, $f1
 	s.s $f2, q
 	jr $ra
-.end compute_globals
-
+.end U3quItLgAXaPHLuf
 
 .globl print_sth
 .ent print_sth
