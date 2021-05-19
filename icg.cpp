@@ -49,7 +49,7 @@ inline void addToDataSegment(string type, string identifier) {
   data_segment += "\n";
 }
 
-inline string& select(FnMode mode) {
+inline string &select(FnMode mode) {
   if (mode == M_MAIN)
     return main_text_segment;
   else if (mode == M_COMPUTE_GLOBALS)
@@ -127,8 +127,10 @@ pair<int, string> ASTNode::genIntermediateCode() {
     if (children[2]->children[0]->rule == "FN") { // function
       mode = identifier == "main" ? M_MAIN : M_OTHER;
       select(mode) += "\n.globl " + identifier + "\n";
-      if (identifier != "main")
+      if (identifier != "main") {
         select(mode) += ".ent " + identifier + "\n";
+      }
+
       select(mode) += identifier + ":\n";
       if (identifier == "main")
         select(mode) += "\tjal U3quItLgAXaPHLuf\n";
@@ -384,8 +386,18 @@ pair<int, string> ASTNode::genIntermediateCode() {
       return children[0]->genIntermediateCode();
     else if (children[0]->rule == "T_LPAREN") // ( EXPR )
       return children[1]->genIntermediateCode();
-    else { // function call or variable
-      return children[0]->genIntermediateCode();
+    else {
+      if (!children[1]->isNulled) { // function call
+        children[0]->print();
+        shared_ptr<ASTNode> args = children[1]->children[1];
+        int int_count, float_count;
+        while (!args->isNulled) {
+          auto [reg, type] = children[0]->genIntermediateCode();
+          // we don't have scope around here, xD
+        }
+        return children[0]->genIntermediateCode();
+      } else // variable
+        return children[0]->genIntermediateCode();
     }
   } else {
     return children[0]->genIntermediateCode();
