@@ -1,49 +1,28 @@
-float q = 2.5 * 16;
-
-void print_sth() {
-
-}
-
-int twice_that(int a, float b) {
-    return 2 * a + 2 * b;
-}
+float q = 37/-100.0; // -0.37
 
 int main() {
-    printf("Hello world!");
-    float qq = 3 + 7.5 + twice_that(7, 1.3);
-    printf(qq);
-    // printf(3 + 7 + q);
+    printf("\nHello world!");
+    printf(1 + q); // 0.63
 
-    // printf(true);
-    // printf('a');
+    printf("\nIf output:");
+    if (78 > 10) { // false
+        printf("q > 10 and 2 / 3 < 1");
+    } else {
+        printf("q < 10 or 2 / 3 > 1");
+    }
 
-    // int foo;
-    // int x = 14 * 48 / 4;
-    // printf(x);
-    // int y = -15;
-    // printf(y);
-    // int z = x + y - 4;
-    // printf(z);
+    printf("\nWhile loop output:");
+    int i = 0;
+    while (i <= 3) {
+        printf(i);
+        i = i + 1;
+    }
 
-    // if (z < 10.0) {
-    //     printf(x - y);
-    // } else if (z > 100) {
-    //     printf(4/-20.0);
-    // }
+    printf("\nFor loop output:");
+    int foo;
+    for (foo = 14; foo > 10; foo = foo - 1) {
+        printf(foo);
+    }
 
-    // int i = 0;
-    // while (i <= 5) {
-    //     if (i >= 4) {
-    //         printf(i);
-    //     } else {
-    //         printf(2);
-    //     }
-    //     i = i + 1;
-    // }
-
-    // for (foo = 0; foo < 15; foo = foo+1) {
-    //     printf(foo);
-    // }
-
-    // return 0;
+    return 0;
 }

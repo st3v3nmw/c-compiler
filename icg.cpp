@@ -8,7 +8,7 @@ string data_segment = ".data\n\tnewline: .asciiz \"\\n\"\n";
 string main_text_segment = ".text\n";
 // bad attempt at name mangling...
 string compute_globals =
-    ".globl U3quItLgAXaPHLuf\n.ent U3quItLgAXaPHLuf\nU3quItLgAXaPHLuf:\n";
+    ".globl compute_globals_U3quItLgAX\n.ent compute_globals_U3quItLgAX\ncompute_globals_U3quItLgAX:\n";
 string other = "";
 
 // keep track of free registers
@@ -96,7 +96,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
     if (token.token == T_STR_LIT || token.token == T_CHAR_LIT) {
       litCount++;
       // again, bad attempt at name mangling
-      string identifier = "UFJ8Pcjn1844XajR" + to_string(litCount);
+      string identifier = "temp_variable_UFJ8Pcjn1" + to_string(litCount);
       data_segment += "\t" + identifier + ": .asciiz \"" + token.value + "\"\n";
       select(mode) += "\tla $t" + to_string(reg) + ", " + identifier + "\n";
       type = "T_STR";
@@ -133,7 +133,7 @@ pair<int, string> ASTNode::genIntermediateCode() {
 
       select(mode) += identifier + ":\n";
       if (identifier == "main")
-        select(mode) += "\tjal U3quItLgAXaPHLuf\n";
+        select(mode) += "\tjal compute_globals_U3quItLgAX\n";
       if (!children[2]->children[0]->children[4]->isNulled)
         children[2]->children[0]->children[4]->genIntermediateCode();
       if (identifier != "main") {
@@ -415,7 +415,7 @@ void genIntermediateCode(shared_ptr<ASTNode> root) {
   if (file.is_open()) {
     file << data_segment << "\n"
          << main_text_segment << "\n"
-         << compute_globals << "\tjr $ra\n.end U3quItLgAXaPHLuf\n" + other;
+         << compute_globals << "\tjr $ra\n.end compute_globals_U3quItLgAX\n" + other;
     file.close();
   }
 }
