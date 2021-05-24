@@ -7,9 +7,9 @@ using namespace std;
 // use different file paths based on the platform i.e. Windows or Linux
 #if defined(WIN32) || defined(_WIN32) ||                                       \
     defined(__WIN32) && !defined(__CYGWIN__)
-string test_file_path = "..\\tests\\submitted.c";
+string test_file_path = "..\\tests\\test10.c";
 #else
-string test_file_path = "tests/submitted.c";
+string test_file_path = "tests/test10.c";
 #endif
 
 int main(int argc, char **argv) {
@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
   auto [tokens, lines] = scan(test_file_path); // scan for all tokens
   // for (auto t : tokens)
   //     t.print();  // print the tokens
+
 
   cout << "\nParsing..." << endl;
   shared_ptr<ASTNode> root = parse(tokens, lines);

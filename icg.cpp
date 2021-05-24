@@ -45,7 +45,7 @@ inline void addToDataSegment(string type, string identifier) {
   else if (type == "T_FLOAT")
     data_segment += ".float 0.0";
   else if (type == "T_CHAR")
-    data_segment += ".byte 1";
+    data_segment += ".asciiz \"\"";
   data_segment += "\n";
 }
 
