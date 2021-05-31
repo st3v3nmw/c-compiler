@@ -4,6 +4,8 @@ A compiler for a subset of the C programming language (written in C++).
 
 See the grammar [here](specification.txt).
 
+This project is an abomination LOL, especially the ICG.
+
 ### Project Status
 
 1. - [x] Lexical Analyzer
